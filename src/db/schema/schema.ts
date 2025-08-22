@@ -37,7 +37,7 @@ export const bicycle = pgTable('bicycle', {
   userId: text('user_id')
     .references(() => user.id)
     .notNull(),
-  imageUrl: varchar('image_url'),
+  imageUrls: text('image_urls').array(), // stores multiple image URLs
   type: bicycleTypeEnum('type'),
   wheelSize: varchar('wheel_size'),
   weight: integer('weight'),

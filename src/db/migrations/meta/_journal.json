@@ -57,6 +57,13 @@
       "when": 1755805486475,
       "tag": "0007_dusty_archangel",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1755850364389,
+      "tag": "0008_natural_wolf_cub",
+      "breakpoints": true
     }
   ]
 }
