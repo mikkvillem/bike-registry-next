@@ -41,7 +41,7 @@ export const bicycle = pgTable('bicycle', {
   type: bicycleTypeEnum('type'),
   wheelSize: varchar('wheel_size'),
   weight: integer('weight'),
-  gearSystem: integer('num_gears'),
+  gearSystem: bicycleGearSystemEnum('gear_system'),
   numGears: integer('num_gears'),
   gender: bicycleGenderEnum('gender'),
   description: text('description'),

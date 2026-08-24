@@ -1,0 +1,1 @@
+ALTER TABLE "bicycle" ADD COLUMN "gear_system" "gearSystem";
