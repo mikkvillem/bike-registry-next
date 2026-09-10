@@ -7,7 +7,9 @@ export default async function Home() {
   if (session) redirect("/dashboard");
 
   return (
-    <main>
+    <main className="relative mx-3 my-3 border border-black/10 sm:mx-4 sm:my-4 dark:border-white/10">
+      <CornerMarks tone="text-foreground/30" />
+
       <section className="grid lg:grid-cols-2">
         <div className="flex flex-col justify-center gap-6 px-6 py-16 sm:px-12 lg:px-16">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase opacity-60">
@@ -31,20 +33,27 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-black/10 px-6 py-12 sm:px-12 lg:px-16 dark:border-white/10">
+      <HorizontalDivider className="h-4 w-full text-black/15 dark:text-white/15" />
+
+      <section className="px-6 py-12 sm:px-12 lg:px-16">
         <h2 className="text-sm font-semibold tracking-[0.15em] uppercase opacity-60">
           Discover the details
         </h2>
-        <div className="mt-6 grid gap-8 sm:grid-cols-3">
+        <div className="relative mt-6 grid gap-8 sm:grid-cols-3 sm:gap-0">
+          <VerticalDivider className="absolute inset-y-0 left-1/3 hidden w-4 -translate-x-1/2 text-black/15 sm:block dark:text-white/15" />
+          <VerticalDivider className="absolute inset-y-0 left-2/3 hidden w-4 -translate-x-1/2 text-black/15 sm:block dark:text-white/15" />
           <Feature
+            className="sm:pr-8"
             title="Full specs"
             description="Type, gearing, wheel size, weight — recorded once, never forgotten."
           />
           <Feature
+            className="sm:px-8"
             title="Photos included"
             description="Attach photos to every bike so you always have proof of what you own."
           />
           <Feature
+            className="sm:pl-8"
             title="One dashboard"
             description="Every bike you register, in a single list you can search anytime."
           />
@@ -57,25 +66,35 @@ export default async function Home() {
 function Feature({
   title,
   description,
+  className,
 }: {
   title: string;
   description: string;
+  className?: string;
 }) {
   return (
-    <div>
+    <div className={className}>
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-1 text-sm opacity-70">{description}</p>
     </div>
   );
 }
 
-function CornerMarks() {
+function CornerMarks({ tone = "text-background/50" }: { tone?: string }) {
   return (
     <>
-      <CornerMark className="top-0 left-0 -translate-x-1/2 -translate-y-1/2" />
-      <CornerMark className="top-0 right-0 translate-x-1/2 -translate-y-1/2" />
-      <CornerMark className="bottom-0 left-0 -translate-x-1/2 translate-y-1/2" />
-      <CornerMark className="right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+      <CornerMark
+        className={`top-0 left-0 -translate-x-1/2 -translate-y-1/2 ${tone}`}
+      />
+      <CornerMark
+        className={`top-0 right-0 translate-x-1/2 -translate-y-1/2 ${tone}`}
+      />
+      <CornerMark
+        className={`bottom-0 left-0 -translate-x-1/2 translate-y-1/2 ${tone}`}
+      />
+      <CornerMark
+        className={`right-0 bottom-0 translate-x-1/2 translate-y-1/2 ${tone}`}
+      />
     </>
   );
 }
@@ -85,7 +104,7 @@ function CornerMark({ className }: { className: string }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 32 32"
-      className={`pointer-events-none absolute h-8 w-8 overflow-visible text-background/50 ${className}`}
+      className={`pointer-events-none absolute h-8 w-8 overflow-visible ${className}`}
     >
       <line
         x1="0"
@@ -108,6 +127,46 @@ function CornerMark({ className }: { className: string }) {
         strokeDasharray="0.5 4"
       />
       <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+function HorizontalDivider({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`pointer-events-none block ${className ?? ""}`}
+    >
+      <line
+        x1="0"
+        y1="50%"
+        x2="100%"
+        y2="50%"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeDasharray="0.5 6"
+      />
+    </svg>
+  );
+}
+
+function VerticalDivider({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`pointer-events-none block ${className ?? ""}`}
+    >
+      <line
+        x1="50%"
+        y1="0"
+        x2="50%"
+        y2="100%"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeDasharray="0.5 6"
+      />
     </svg>
   );
 }
