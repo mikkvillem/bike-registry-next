@@ -26,6 +26,7 @@ export default async function Home() {
         </div>
 
         <div className="relative flex min-h-[320px] items-center justify-center bg-foreground px-8 py-16 text-background lg:min-h-[560px]">
+          <CornerMarks />
           <BikeIllustration className="w-full max-w-sm" />
         </div>
       </section>
@@ -65,6 +66,49 @@ function Feature({
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-1 text-sm opacity-70">{description}</p>
     </div>
+  );
+}
+
+function CornerMarks() {
+  return (
+    <>
+      <CornerMark className="top-0 left-0 -translate-x-1/2 -translate-y-1/2" />
+      <CornerMark className="top-0 right-0 translate-x-1/2 -translate-y-1/2" />
+      <CornerMark className="bottom-0 left-0 -translate-x-1/2 translate-y-1/2" />
+      <CornerMark className="right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+    </>
+  );
+}
+
+function CornerMark({ className }: { className: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 32 32"
+      className={`pointer-events-none absolute h-8 w-8 overflow-visible text-background/50 ${className}`}
+    >
+      <line
+        x1="0"
+        y1="16"
+        x2="32"
+        y2="16"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeDasharray="0.5 4"
+      />
+      <line
+        x1="16"
+        y1="0"
+        x2="16"
+        y2="32"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeDasharray="0.5 4"
+      />
+      <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+    </svg>
   );
 }
 
