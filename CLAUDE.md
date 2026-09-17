@@ -92,6 +92,11 @@ Ask about these when they become relevant to the feature being built:
   contested (no flow exists yet — someone has to decide what it looks like).
 - How a published stolen listing gets taken down (recovered, false report,
   resolved dispute).
+- QR label sticker size/format (e.g. keyring tag vs. small circle/square
+  sticker vs. printed A4/Letter sheet — affects material and print bleed)
+  and its visual design/branding (logo, QR colors, layout) — currently a
+  plain placeholder, see `src/app/bikes/[id]/label/route.ts` and decision
+  0002.
 
 ## Stack
 
