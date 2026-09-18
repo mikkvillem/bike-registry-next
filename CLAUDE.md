@@ -92,6 +92,11 @@ Ask about these when they become relevant to the feature being built:
   contested (no flow exists yet — someone has to decide what it looks like).
 - How a published stolen listing gets taken down (recovered, false report,
   resolved dispute).
+- QR label sticker size/format (e.g. keyring tag vs. small circle/square
+  sticker vs. printed A4/Letter sheet — affects material and print bleed)
+  and its visual design/branding (logo, QR colors, layout) — currently a
+  plain placeholder, see `src/app/bikes/[id]/label/route.ts` and decision
+  0002.
 
 ## Stack
 
@@ -105,19 +110,26 @@ Postgres (Neon), better-auth, Biome for lint/format. See `package.json`.
   to enforce the uniqueness decision above.
 - `listing` — for-sale marketplace listing tied to a bicycle (price,
   isForSale). Phase 2 feature; not part of MVP scope.
-- `theft` — theft report tied to a bicycle (description, contact). This is
-  the core MVP feature and is currently minimal: it still needs a published/
-  public state, a status (active/recovered/resolved), and integration with
-  the public stolen-lookup + QR flow.
+- `theft` — theft report tied to a bicycle (description, contact,
+  `contactPublic` opt-in flag — see
+  [`docs/decisions/0002-public-bike-page-contact-visibility.md`](docs/decisions/0002-public-bike-page-contact-visibility.md)).
+  Still minimal: no theft-report creation UI exists yet, and no explicit
+  status (active/recovered/resolved) beyond soft-delete — a non-deleted row
+  is treated as "active" on the public page.
 
 ## QR code concept
 
-A printable QR code per registered bike resolves to that bike's public
-status page, so a finder/buyer/police officer can scan it and immediately
-see registration + theft status. Needs: a public bike page that's safe to
-expose (no PII beyond what the owner opts into), server-side QR generation,
-and a print-friendly label design — flag the label design for a branding/
-design decision when it's built.
+Implemented: `src/app/b/[id]/page.tsx` is the public, no-auth bike status
+page (registration specs + theft status; contact only shown if the theft
+report opted in via `contactPublic`). `src/lib/qr.ts` generates the QR PNG
+(`qrcode` package) and `src/app/bikes/[id]/label/route.ts` is an
+owner-only, authenticated route that returns a printable PDF label
+(`pdf-lib`) with the QR code linking to `/b/[id]`. Label branding is a
+placeholder ("Bike Registry" text, no logo) pending the real brand/design
+decision — see decision 0002. Base URL for the QR comes from
+`NEXT_PUBLIC_SITE_URL` (falls back to the request host) via
+`src/lib/site-url.ts`; set `NEXT_PUBLIC_SITE_URL` in production so printed
+labels always resolve correctly.
 
 ## Where business context lives
 

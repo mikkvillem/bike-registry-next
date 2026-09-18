@@ -28,9 +28,17 @@ export default async function BikePage({
         &larr; Back to dashboard
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold">
-        {bike.make} {bike.model}
-      </h1>
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">
+          {bike.make} {bike.model}
+        </h1>
+        <a
+          href={`/bikes/${bike.id}/label`}
+          className="shrink-0 rounded border px-3 py-1.5 text-sm hover:bg-black/5"
+        >
+          Download QR label (PDF)
+        </a>
+      </div>
 
       {bike.imageUrls && bike.imageUrls.length > 0 && (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">

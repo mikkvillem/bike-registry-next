@@ -88,9 +88,16 @@ Kept in sync with the "Open business questions" section of `CLAUDE.md`:
 - Dispute-resolution process for contested registrations/theft reports.
 - Takedown process for a published stolen listing (recovered, false
   report, resolved dispute).
+- QR label sticker size/format and its visual design/branding (currently a
+  plain text placeholder, no logo or brand colors).
 
 ## Changelog
 
 - 2026-09-15 — Initial brief. MVP scope, market default, monetization
   posture, and verification model decided — see
   `docs/decisions/0001-mvp-scope-and-verification.md`.
+- 2026-09-17 — Printable QR label PDF export shipped with placeholder
+  branding; theft-contact public visibility made owner opt-in — see
+  `docs/decisions/0002-public-bike-page-contact-visibility.md`. QR label
+  sticker size/format and real visual design/branding logged as open
+  questions.
