@@ -17,6 +17,38 @@ export default async function NewBikePage() {
 
       <form action={createBike} className="mt-6 flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
+          Make
+          <input
+            type="text"
+            name="make"
+            required
+            placeholder="e.g. Trek"
+            className="rounded border border-black/20 p-2 dark:border-white/20"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm">
+          Model
+          <input
+            type="text"
+            name="model"
+            placeholder="e.g. Marlin 7"
+            className="rounded border border-black/20 p-2 dark:border-white/20"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm">
+          Serial number
+          <input
+            type="text"
+            name="serialNumber"
+            required
+            placeholder="Stamped on the frame, usually under the bottom bracket"
+            className="rounded border border-black/20 p-2 dark:border-white/20"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm">
           Type
           <select
             name="type"

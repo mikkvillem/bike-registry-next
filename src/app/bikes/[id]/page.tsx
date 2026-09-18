@@ -28,7 +28,9 @@ export default async function BikePage({
         &larr; Back to dashboard
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold">{bike.type ?? "Bike"}</h1>
+      <h1 className="mt-4 text-2xl font-semibold">
+        {bike.make} {bike.model}
+      </h1>
 
       {bike.imageUrls && bike.imageUrls.length > 0 && (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -45,6 +47,8 @@ export default async function BikePage({
       )}
 
       <dl className="mt-6 grid grid-cols-2 gap-y-3 text-sm">
+        <dt className="opacity-60">Serial number</dt>
+        <dd>{bike.serialNumber}</dd>
         <dt className="opacity-60">Type</dt>
         <dd>{bike.type ?? "—"}</dd>
         <dt className="opacity-60">Gender</dt>

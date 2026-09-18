@@ -78,7 +78,7 @@ export default async function DashboardPage() {
                       {bike.gender ?? "Bike"}
                     </p>
                     <p className="mt-1 font-medium">
-                      {bike.type ?? "Unspecified type"}
+                      {bike.make} {bike.model}
                     </p>
                     <p className="text-sm opacity-70">
                       {bike.wheelSize

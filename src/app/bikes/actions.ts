@@ -43,6 +43,13 @@ export async function createBike(formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/");
 
+  const make = (formData.get("make") as string)?.trim();
+  const serialNumber = (formData.get("serialNumber") as string)?.trim();
+  if (!make || !serialNumber) {
+    throw new Error("Make and serial number are required.");
+  }
+  const model = (formData.get("model") as string)?.trim() || null;
+
   const bikeId = crypto.randomUUID();
   const images = formData
     .getAll("images")
@@ -52,21 +59,36 @@ export async function createBike(formData: FormData) {
   const weightRaw = formData.get("weight");
   const numGearsRaw = formData.get("numGears");
 
-  await db.insert(bicycle).values({
-    id: bikeId,
-    userId: session.user.id,
-    type: asEnumValue(bicycleTypeEnum.enumValues, formData.get("type")),
-    gender: asEnumValue(bicycleGenderEnum.enumValues, formData.get("gender")),
-    gearSystem: asEnumValue(
-      bicycleGearSystemEnum.enumValues,
-      formData.get("gearSystem"),
-    ),
-    wheelSize: (formData.get("wheelSize") as string) || null,
-    weight: weightRaw ? Number(weightRaw) : null,
-    numGears: numGearsRaw ? Number(numGearsRaw) : null,
-    description: (formData.get("description") as string) || null,
-    imageUrls: imageUrls.length > 0 ? imageUrls : null,
-  });
+  try {
+    await db.insert(bicycle).values({
+      id: bikeId,
+      userId: session.user.id,
+      make,
+      model,
+      serialNumber,
+      type: asEnumValue(bicycleTypeEnum.enumValues, formData.get("type")),
+      gender: asEnumValue(bicycleGenderEnum.enumValues, formData.get("gender")),
+      gearSystem: asEnumValue(
+        bicycleGearSystemEnum.enumValues,
+        formData.get("gearSystem"),
+      ),
+      wheelSize: (formData.get("wheelSize") as string) || null,
+      weight: weightRaw ? Number(weightRaw) : null,
+      numGears: numGearsRaw ? Number(numGearsRaw) : null,
+      description: (formData.get("description") as string) || null,
+      imageUrls: imageUrls.length > 0 ? imageUrls : null,
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes("bicycle_serial_make_model_idx")
+    ) {
+      throw new Error(
+        "A bike with this make, model, and serial number is already registered.",
+      );
+    }
+    throw error;
+  }
 
   redirect(`/bikes/${bikeId}`);
 }
