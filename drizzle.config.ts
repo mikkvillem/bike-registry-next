@@ -14,6 +14,9 @@ export default defineConfig({
   },
 
   verbose: true,
-  strict: true,
+  // Locally, confirm every push statement. In CI (the "DB push" GitHub
+  // Action) nobody can answer the prompt, so the workflow's manual trigger
+  // and confirm input stand in for it.
+  strict: !process.env.CI,
   dialect: 'postgresql',
 });

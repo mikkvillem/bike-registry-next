@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-28 — build fixed: restored `theft.contactPublic`, public page only shows published active thefts
+**Last updated:** 2026-09-28 — added a manual "DB push" GitHub Action so schema changes can be applied without local access
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -9,7 +9,10 @@ check-in: health first, then what's next, then what's waiting on you.
 ## Health
 
 - [x] **Builds** — ✅ `tsc` and `next build` pass (once this PR merges).
-  Needs `npm run db:push` to add the `theft.contact_public` column.
+  Needs a DB push to add the `theft.contact_public` column.
+- [ ] **DB push from GitHub** — workflow added (Actions → **DB push** →
+  Run workflow, type `push`). ⚠️ Needs a `DATABASE_URL` secret before
+  first use; not yet run against the real DB.
 - [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
   all in untouched files (formatting, import order, `!` non-null assertions
   on env vars, Tailwind `@theme` at-rule in `globals.css`).
@@ -79,6 +82,10 @@ Ordered by priority.
 
 ## Waiting on you (decisions)
 
+- [ ] **Add `DATABASE_URL` GitHub secret** (Settings → Secrets and
+  variables → Actions) so the "DB push" workflow can run. Then run it once
+  to add `theft.contact_public`.
+
 - [ ] **Product name + domain** — blocks label, public copy, OG cards.
 - [ ] **Show the full serial number publicly on `/b/[id]`?** — helps
   finders/buyers match the bike; it's a data-visibility call.
@@ -98,6 +105,10 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-09-28 — Added `.github/workflows/db-push.yml`: manually triggered
+  `drizzle-kit push` using the `DATABASE_URL` secret; data-loss statements
+  need an explicit opt-in. `drizzle.config.ts` skips the strict prompt in CI.
 
 - 2026-09-28 — Fixed build: restored `theft.contactPublic` (default
   hidden, decision 0002); `/b/[id]` shows "stolen" only for
