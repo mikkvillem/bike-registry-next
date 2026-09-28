@@ -111,6 +111,9 @@ export const theft = pgTable(
     publishedAt: timestamp('published_at', { withTimezone: true, mode: 'date' }),
     description: text('description'),
     contact: text('contact'), // telephone + whatever?
+    // Owner opt-in to show `contact` on the public /b/[id] page. Hidden by
+    // default — see docs/decisions/0002.
+    contactPublic: boolean('contact_public').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()
       .defaultNow(),

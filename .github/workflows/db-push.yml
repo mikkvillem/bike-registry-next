@@ -1,0 +1,78 @@
+name: DB push
+
+# Manually applies the Drizzle schema (src/db/schema) to the database with
+# `drizzle-kit push`. Run it from GitHub: Actions → DB push → Run workflow,
+# pick the branch whose schema you want (normally main).
+#
+# Setup: add a `DATABASE_URL` secret (Settings → Secrets and variables →
+# Actions, or on the `production` environment). Optionally add required
+# reviewers to the `production` environment for an extra approval step.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "push" to apply the schema to the database'
+        required: true
+        type: string
+      allow_data_loss:
+        description: >-
+          Allow statements that can delete data (dropping columns/tables,
+          truncating). Leave off unless you've read a previous run's log.
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: db-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - name: Check confirmation
+        if: inputs.confirm != 'push'
+        run: |
+          echo "::error::Confirmation input must be exactly \"push\"."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: drizzle-kit push
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ALLOW_DATA_LOSS: ${{ inputs.allow_data_loss }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL secret is not set."
+            exit 1
+          fi
+          FLAGS=""
+          if [ "$ALLOW_DATA_LOSS" = "true" ]; then FLAGS="--force"; fi
+
+          # stdin is closed: if drizzle-kit needs an answer (a data-loss
+          # statement without --force, or "is this column renamed or new?"),
+          # it can't get one and stops without applying anything. Its exit
+          # code doesn't say so, so check the output for a real result.
+          set +e
+          timeout 5m npx drizzle-kit push $FLAGS < /dev/null 2>&1 | tee push.log
+          set -e
+
+          if grep -q "Changes applied" push.log; then
+            echo "::notice::Schema changes applied."
+          elif grep -q "No changes detected" push.log; then
+            echo "::notice::Database already matches the schema."
+          else
+            echo "::error::drizzle-kit did not finish. It likely needed an interactive answer (data loss or a rename). Check the log above; re-run with allow_data_loss if the drop is intended, or run db:push locally for renames."
+            exit 1
+          fi
