@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
@@ -25,7 +25,14 @@ export default async function PublicBikePage({
   const [activeTheft] = await db
     .select()
     .from(theft)
-    .where(and(eq(theft.bicycleId, bike.id), isNull(theft.deletedAt)))
+    .where(
+      and(
+        eq(theft.bicycleId, bike.id),
+        eq(theft.status, "active"),
+        isNotNull(theft.publishedAt),
+        isNull(theft.deletedAt),
+      ),
+    )
     .orderBy(desc(theft.createdAt))
     .limit(1);
 
@@ -38,7 +45,7 @@ export default async function PublicBikePage({
         <div className="mt-4 rounded border border-red-600 bg-red-50 p-4 text-red-800">
           <p className="font-semibold">Reported stolen</p>
           <p className="text-sm opacity-80">
-            Reported on {activeTheft.createdAt.toLocaleDateString()}.
+            Reported on {activeTheft.publishedAt?.toLocaleDateString()}.
             {activeTheft.contactPublic && activeTheft.contact
               ? ` Contact: ${activeTheft.contact}`
               : " If you have information about this bike, contact local police."}

@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-28 — initial status snapshot (no code changes yet)
+**Last updated:** 2026-09-28 — build fixed: restored `theft.contactPublic`, public page only shows published active thefts
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -8,10 +8,11 @@ check-in: health first, then what's next, then what's waiting on you.
 
 ## Health
 
-- [ ] **`main` builds** — ❌ broken. `tsc` fails:
-  `src/app/b/[id]/page.tsx` reads `theft.contactPublic`, which no longer
-  exists in the schema (PRs #5 and #6 merged separately and conflict).
-- [ ] **Lint clean** (`npm run lint`) — ❌ errors.
+- [x] **Builds** — ✅ `tsc` and `next build` pass (once this PR merges).
+  Needs `npm run db:push` to add the `theft.contact_public` column.
+- [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
+  all in untouched files (formatting, import order, `!` non-null assertions
+  on env vars, Tailwind `@theme` at-rule in `globals.css`).
 - [ ] **CI** — none. Nothing checks typecheck/lint/build on PRs.
 - [ ] **Tests** — none.
 - [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
@@ -46,9 +47,7 @@ the core of the product — has no UI yet.
 
 Ordered by priority.
 
-1. [ ] **Fix the build** — restore `theft.contactPublic` (decision 0002)
-   and make `/b/[id]` show "stolen" only for `status = 'active'` and
-   `publishedAt is not null`.
+1. [x] ~~**Fix the build**~~ — done 2026-09-28.
 2. [ ] **Theft report flow** — owner marks bike stolen (description,
    date/place, contact, contact-public opt-in), publishes it, later marks
    recovered/resolved.
@@ -59,7 +58,8 @@ Ordered by priority.
    (`useActionState`) instead of a raw thrown error.
 7. [ ] **Regenerate + commit DB migrations.**
 8. [ ] **CI** (typecheck, lint, build) and a few tests (uniqueness,
-   theft status transitions).
+   theft status transitions). Fix the old lint errors first so CI can
+   start green.
 9. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
    `/b/[id]` so shared stolen-bike links preview well.
 
@@ -99,4 +99,7 @@ Ordered by priority.
 
 Newest first. One line per merged change.
 
+- 2026-09-28 — Fixed build: restored `theft.contactPublic` (default
+  hidden, decision 0002); `/b/[id]` shows "stolen" only for
+  `status = 'active'` reports with `publishedAt` set, dated by publish date.
 - 2026-09-28 — Added this status doc and the rule to keep it current.

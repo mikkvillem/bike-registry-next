@@ -123,16 +123,17 @@ Postgres (Neon), better-auth, Biome for lint/format. See `package.json`.
 ## Domain model (current state)
 
 - `bicycle` (`src/db/schema/schema.ts`) — owner, specs (type/wheel/weight/
-  gears/gender), photos, soft-delete. **No serial number field yet** — needed
-  to enforce the uniqueness decision above.
+  gears/gender), make/model/serial number, photos, soft-delete. Unique
+  index on (serial, make, model), case/whitespace-insensitive, non-deleted
+  rows only.
 - `listing` — for-sale marketplace listing tied to a bicycle (price,
   isForSale). Phase 2 feature; not part of MVP scope.
 - `theft` — theft report tied to a bicycle (description, contact,
   `contactPublic` opt-in flag — see
   [`docs/decisions/0002-public-bike-page-contact-visibility.md`](docs/decisions/0002-public-bike-page-contact-visibility.md)).
-  Still minimal: no theft-report creation UI exists yet, and no explicit
-  status (active/recovered/resolved) beyond soft-delete — a non-deleted row
-  is treated as "active" on the public page.
+  Also `status` (active/recovered/resolved) and `publishedAt`; the public
+  page shows a bike as stolen only for a non-deleted `active` report with
+  `publishedAt` set. No theft-report creation UI exists yet.
 
 ## QR code concept
 
