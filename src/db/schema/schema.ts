@@ -3,6 +3,7 @@ import {
   text,
   integer,
   timestamp,
+  date,
   pgEnum,
   varchar,
   boolean,
@@ -109,6 +110,10 @@ export const theft = pgTable(
     status: theftStatusEnum('status').notNull().default('active'),
     // Null until the report is made visible on the public status page.
     publishedAt: timestamp('published_at', { withTimezone: true, mode: 'date' }),
+    // When and where the owner says the bike was stolen. Owner-entered and
+    // shown on the public page once published.
+    stolenOn: date('stolen_on', { mode: 'string' }),
+    location: text('location'),
     description: text('description'),
     contact: text('contact'), // telephone + whatever?
     // Owner opt-in to show `contact` on the public /b/[id] page. Hidden by

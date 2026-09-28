@@ -131,9 +131,12 @@ Postgres (Neon), better-auth, Biome for lint/format. See `package.json`.
 - `theft` — theft report tied to a bicycle (description, contact,
   `contactPublic` opt-in flag — see
   [`docs/decisions/0002-public-bike-page-contact-visibility.md`](docs/decisions/0002-public-bike-page-contact-visibility.md)).
-  Also `status` (active/recovered/resolved) and `publishedAt`; the public
-  page shows a bike as stolen only for a non-deleted `active` report with
-  `publishedAt` set. No theft-report creation UI exists yet.
+  Also `status` (active/recovered/resolved), `publishedAt`, `stolenOn`,
+  `location`; the public page shows a bike as stolen only for a non-deleted
+  `active` report with `publishedAt` set. Owner flow lives under
+  `src/app/bikes/[id]/theft/` (report, publish, mark recovered, withdraw =
+  soft-delete) — see
+  [`docs/decisions/0003-theft-report-flow.md`](docs/decisions/0003-theft-report-flow.md).
 
 ## QR code concept
 
