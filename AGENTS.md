@@ -7,3 +7,6 @@ coding agent you are.
 
 Business/product context lives in [`docs/product-brief.md`](docs/product-brief.md)
 and [`docs/decisions/`](docs/decisions/).
+
+Current project status lives in [`docs/status.md`](docs/status.md) — keep it
+updated with every code change (rule in `CLAUDE.md`).
