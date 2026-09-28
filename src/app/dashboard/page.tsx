@@ -79,7 +79,7 @@ export default async function DashboardPage() {
                     className="block hover:bg-black/[0.03] sm:p-6 dark:hover:bg-white/[0.03]"
                   >
                     {bike.imageUrls?.[0] ? (
-                      // biome-ignore lint/performance/noImgElement: local file uploads, not optimizable by next/image
+                      // biome-ignore lint/performance/noImgElement: user uploads (R2 or local), not optimized via next/image
                       <img
                         src={bike.imageUrls[0]}
                         alt=""

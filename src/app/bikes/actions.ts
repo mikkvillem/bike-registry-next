@@ -11,6 +11,17 @@ import {
   bicycleTypeEnum,
 } from "@/db/schema/schema";
 import { getSession } from "@/lib/session";
+import {
+  ALLOWED_IMAGE_TYPES,
+  createUploadUrl,
+  isR2Configured,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES_PER_BIKE,
+  newImageKey,
+  objectExists,
+  publicImageUrl,
+  userUploadPrefix,
+} from "@/lib/storage";
 
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 
@@ -21,7 +32,85 @@ function asEnumValue<T extends readonly string[]>(
   return values.includes(value as string) ? (value as T[number]) : undefined;
 }
 
-async function saveImages(bikeId: string, files: File[]): Promise<string[]> {
+export type ImageUploadRequest = { contentType: string; size: number };
+
+export type ImageUploadTargets =
+  | { mode: "local" }
+  | { mode: "r2"; uploads: { key: string; url: string }[] }
+  | { mode: "error"; message: string };
+
+/**
+ * Step 1 of adding photos: the browser asks for presigned R2 upload URLs,
+ * PUTs each file directly to R2, then submits the returned keys with the
+ * bike form. Returns `local` when R2 isn't configured (dev), in which case
+ * the form posts the files themselves.
+ */
+export async function requestImageUploads(
+  files: ImageUploadRequest[],
+): Promise<ImageUploadTargets> {
+  const session = await getSession();
+  if (!session) throw new Error("Not signed in.");
+  if (!isR2Configured()) return { mode: "local" };
+
+  if (files.length > MAX_IMAGES_PER_BIKE) {
+    return {
+      mode: "error",
+      message: `You can add up to ${MAX_IMAGES_PER_BIKE} photos.`,
+    };
+  }
+  for (const file of files) {
+    if (!(file.contentType in ALLOWED_IMAGE_TYPES)) {
+      return {
+        mode: "error",
+        message: "Photos must be JPEG, PNG, WebP, HEIC or AVIF.",
+      };
+    }
+    if (!(file.size > 0 && file.size <= MAX_IMAGE_BYTES)) {
+      return {
+        mode: "error",
+        message: `Each photo must be under ${MAX_IMAGE_BYTES / 1024 / 1024} MB.`,
+      };
+    }
+  }
+
+  const uploads = await Promise.all(
+    files.map(async (file) => {
+      const key = newImageKey(session.user.id, file.contentType);
+      const url = await createUploadUrl(key, file.contentType, file.size);
+      return { key, url };
+    }),
+  );
+  return { mode: "r2", uploads };
+}
+
+/** Turns uploaded R2 keys from the form into public URLs, after checks. */
+async function resolveUploadedImages(
+  userId: string,
+  keys: string[],
+): Promise<string[]> {
+  if (keys.length === 0) return [];
+  if (keys.length > MAX_IMAGES_PER_BIKE) {
+    throw new Error(`You can add up to ${MAX_IMAGES_PER_BIKE} photos.`);
+  }
+  const prefix = userUploadPrefix(userId);
+  for (const key of keys) {
+    if (!key.startsWith(prefix) || key.includes("..")) {
+      throw new Error("Invalid photo reference.");
+    }
+  }
+  const exists = await Promise.all(keys.map(objectExists));
+  if (exists.includes(false)) {
+    throw new Error("A photo failed to upload. Please try again.");
+  }
+  return keys.map(publicImageUrl);
+}
+
+// Local-dev fallback when R2 isn't configured. Files written here don't
+// survive a serverless deploy.
+async function saveImagesLocally(
+  bikeId: string,
+  files: File[],
+): Promise<string[]> {
   const validFiles = files.filter((file) => file.size > 0);
   if (validFiles.length === 0) return [];
 
@@ -51,10 +140,15 @@ export async function createBike(formData: FormData) {
   const model = (formData.get("model") as string)?.trim() || null;
 
   const bikeId = crypto.randomUUID();
+  const imageKeys = formData
+    .getAll("imageKeys")
+    .filter((k): k is string => typeof k === "string" && k.length > 0);
   const images = formData
     .getAll("images")
     .filter((f): f is File => f instanceof File);
-  const imageUrls = await saveImages(bikeId, images);
+  const imageUrls = isR2Configured()
+    ? await resolveUploadedImages(session.user.id, imageKeys)
+    : await saveImagesLocally(bikeId, images);
 
   const weightRaw = formData.get("weight");
   const numGearsRaw = formData.get("numGears");

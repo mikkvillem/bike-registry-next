@@ -118,7 +118,9 @@ Ask about these when they become relevant to the feature being built:
 ## Stack
 
 Next.js 15 (App Router, Turbopack), React 19, Tailwind v4, Drizzle ORM +
-Postgres (Neon), better-auth, Biome for lint/format. See `package.json`.
+Postgres (Neon), better-auth, Cloudflare R2 for bike photos (S3 API,
+presigned browser uploads — `src/lib/storage.ts`, `docs/r2-setup.md`,
+decision 0004), Biome for lint/format. See `package.json`.
 
 ## Domain model (current state)
 

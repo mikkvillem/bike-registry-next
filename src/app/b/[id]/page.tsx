@@ -75,7 +75,7 @@ export default async function PublicBikePage({
       {bike.imageUrls && bike.imageUrls.length > 0 && (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {bike.imageUrls.map((url) => (
-            // biome-ignore lint/performance/noImgElement: local file uploads, not optimizable by next/image
+            // biome-ignore lint/performance/noImgElement: user uploads (R2 or local), not optimized via next/image
             <img
               key={url}
               src={url}

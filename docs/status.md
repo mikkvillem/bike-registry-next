@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-28 — theft report flow: report, publish, mark recovered, withdraw
+**Last updated:** 2026-09-28 — bike photos on Cloudflare R2 (direct browser uploads)
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -8,9 +8,11 @@ check-in: health first, then what's next, then what's waiting on you.
 
 ## Health
 
-- [ ] **Builds** — ⚠️ passed on `main` as of PR #7; the theft-flow PR
-  was pushed without running `tsc`/`next build` (session shell was
-  unavailable). Verify before merging.
+- [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
+  (2026-09-28).
+- [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
+  CORS, token and `R2_*` env vars need setting up — follow
+  [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
 - [ ] **DB schema applied** — ⚠️ the real DB still needs a push after this
   PR merges: adds `theft.contact_public`, `theft.stolen_on`,
   `theft.location` (additive, no data loss). Actions → **DB push** → Run
@@ -41,6 +43,8 @@ exist; missing public serial lookup and a stolen-bikes feed.
 
 - Google sign-in (better-auth), dashboard catalog grid, add-bike form with
   photos, owner-only bike detail page.
+- Photos upload from the browser straight to Cloudflare R2 via presigned
+  URLs (`src/lib/storage.ts`); max 8 × 10 MB; local-disk fallback in dev.
 - `bicycle` has make/model/serial with a case-insensitive uniqueness index
   on non-deleted rows.
 - `theft` has status (`active`/`recovered`/`resolved`), `publishedAt`,
@@ -71,7 +75,10 @@ Ordered by priority.
 8. [ ] **CI** (typecheck, lint, build) and a few tests (uniqueness,
    theft status transitions). Fix the old lint errors first so CI can
    start green.
-9. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
+9. [ ] **Photo follow-ups** — clean up orphaned R2 uploads from abandoned
+   forms; convert HEIC to JPEG (doesn't render outside Safari); add/remove
+   photos on an existing bike.
+10. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
    `/b/[id]` so shared stolen-bike links preview well.
 
 ## Design to hone
@@ -101,9 +108,9 @@ Ordered by priority.
   police only?
 - [ ] **Theft takedown / disputes** — owner marks recovered; what about
   false reports and contested claims?
-- [ ] **Photo storage vendor** — uploads currently go to local disk
-  (`public/uploads`), which won't persist on Vercel/serverless. Options:
-  Vercel Blob, S3, Cloudflare R2.
+- [ ] **Set up R2** — create bucket, public domain, CORS, API token, env
+  vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
+  me to double-check config.
 - [ ] **Email/notifications** — send any email at all (e.g. "your bike's page
   was scanned")? Which provider?
 - [ ] **Privacy policy + ToS** — needed before real users (PII + theft
@@ -113,6 +120,10 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-09-28 — Photos on Cloudflare R2 (decision 0004): presigned direct
+  uploads, `src/lib/storage.ts`, `BikeForm` client wrapper, `.env.example`,
+  `docs/r2-setup.md`. Adds `@aws-sdk/client-s3` + presigner.
 
 - 2026-09-28 — Theft report flow (`/bikes/[id]/theft/new`, actions in
   `src/app/bikes/[id]/theft/actions.ts`); `theft.stolenOn` + `location`
