@@ -7,7 +7,7 @@ import {
   HorizontalDivider,
 } from "@/components/framing";
 import { db } from "@/db";
-import { bicycle } from "@/db/schema/schema";
+import { bicycle, theft } from "@/db/schema/schema";
 import { getSession } from "@/lib/session";
 
 export default async function DashboardPage() {
@@ -19,6 +19,22 @@ export default async function DashboardPage() {
     .from(bicycle)
     .where(and(eq(bicycle.userId, session.user.id), isNull(bicycle.deletedAt)))
     .orderBy(desc(bicycle.createdAt));
+
+  const stolenBikeIds = new Set(
+    (
+      await db
+        .select({ bicycleId: theft.bicycleId })
+        .from(theft)
+        .innerJoin(bicycle, eq(theft.bicycleId, bicycle.id))
+        .where(
+          and(
+            eq(bicycle.userId, session.user.id),
+            eq(theft.status, "active"),
+            isNull(theft.deletedAt),
+          ),
+        )
+    ).map((row) => row.bicycleId),
+  );
 
   return (
     <main className="relative mx-3 my-3 border border-black/10 sm:mx-4 sm:my-4 dark:border-white/10">
@@ -74,8 +90,13 @@ export default async function DashboardPage() {
                         <BikeIllustration className="h-16 w-16 opacity-30" />
                       </div>
                     )}
-                    <p className="text-xs font-semibold tracking-[0.15em] uppercase opacity-50">
-                      {bike.gender ?? "Bike"}
+                    <p className="text-xs font-semibold tracking-[0.15em] uppercase">
+                      <span className="opacity-50">{bike.gender ?? "Bike"}</span>
+                      {stolenBikeIds.has(bike.id) && (
+                        <span className="ml-2 rounded bg-red-700 px-1.5 py-0.5 text-white">
+                          Stolen
+                        </span>
+                      )}
                     </p>
                     <p className="mt-1 font-medium">
                       {bike.make} {bike.model}

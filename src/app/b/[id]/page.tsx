@@ -44,7 +44,22 @@ export default async function PublicBikePage({
       {activeTheft ? (
         <div className="mt-4 rounded border border-red-600 bg-red-50 p-4 text-red-800">
           <p className="font-semibold">Reported stolen</p>
-          <p className="text-sm opacity-80">
+          {(activeTheft.stolenOn || activeTheft.location) && (
+            <p className="mt-1 text-sm">
+              {[
+                activeTheft.stolenOn && `Stolen ${activeTheft.stolenOn}`,
+                activeTheft.location,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
+          {activeTheft.description && (
+            <p className="mt-1 whitespace-pre-wrap text-sm">
+              {activeTheft.description}
+            </p>
+          )}
+          <p className="mt-2 text-sm opacity-80">
             Reported on {activeTheft.publishedAt?.toLocaleDateString()}.
             {activeTheft.contactPublic && activeTheft.contact
               ? ` Contact: ${activeTheft.contact}`
