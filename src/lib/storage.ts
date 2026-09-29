@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -141,4 +142,19 @@ export async function objectExists(key: string): Promise<boolean> {
 
 export function publicImageUrl(key: string): string {
   return `${requireConfig().publicUrl}/${key}`;
+}
+
+/** The object key for a URL returned by publicImageUrl, or null. */
+export function keyFromPublicUrl(url: string): string | null {
+  const config = readConfig();
+  if (!config) return null;
+  const prefix = `${config.publicUrl}/`;
+  return url.startsWith(prefix) ? url.slice(prefix.length) : null;
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  const config = requireConfig();
+  await client(config).send(
+    new DeleteObjectCommand({ Bucket: config.bucket, Key: key }),
+  );
 }

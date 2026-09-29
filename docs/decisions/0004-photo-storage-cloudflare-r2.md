@@ -29,6 +29,9 @@ Owner chose **Cloudflare R2**. Implementation:
   (`@jsquash/webp`). Re-encoding also strips EXIF metadata, including GPS
   location. The server only accepts `image/webp`.
 - Limits: 8 photos per bike, 10 MB each (after conversion).
+- Photos are optional at registration and can be added/removed later from
+  the owner's bike page (owner's call, 2026-09-29). Removing a photo also
+  deletes the stored file.
 - Local-disk fallback stays for dev when `R2_*` env vars are unset.
 
 ## Consequences

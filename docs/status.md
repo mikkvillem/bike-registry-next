@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-29 — photos converted to WebP in the browser before upload
+**Last updated:** 2026-09-29 — add/remove photos on an existing bike
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -34,7 +34,7 @@ exist; missing public serial lookup and a stolen-bikes feed.
 
 | # | MVP item | State |
 |---|----------|-------|
-| 1 | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create only; no edit/delete |
+| 1 | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create; photos editable later; no edit/delete of details |
 | 2 | Theft reporting + publishing | ✅ Done — report, publish, recovered, withdraw; no edit yet |
 | 3 | Public lookup by serial number / QR scan | 🟡 QR status page exists; no serial search |
 | 4 | Printable QR tag | ✅ Done — PDF label, placeholder branding |
@@ -46,7 +46,8 @@ exist; missing public serial lookup and a stolen-bikes feed.
 - Photos are converted to WebP in the browser (≤2560 px, EXIF/GPS
   stripped; `src/lib/image-convert.ts`), then upload straight to
   Cloudflare R2 via presigned URLs (`src/lib/storage.ts`); max 8 × 10 MB;
-  local-disk fallback in dev.
+  local-disk fallback in dev. Photos are optional at registration; the
+  owner's bike page can add/remove them any time (removal deletes the file).
 - `bicycle` has make/model/serial with a case-insensitive uniqueness index
   on non-deleted rows.
 - `theft` has status (`active`/`recovered`/`resolved`), `publishedAt`,
@@ -78,7 +79,7 @@ Ordered by priority.
    theft status transitions). Fix the old lint errors first so CI can
    start green.
 9. [ ] **Photo follow-ups** — clean up orphaned R2 uploads from abandoned
-   forms; add/remove photos on an existing bike; HEIC picked on desktop
+   forms; reorder photos / pick the cover photo; HEIC picked on desktop
    Chrome/Firefox is rejected (can't decode) — add a WASM HEIC decoder if
    that turns out to matter.
 10. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
@@ -123,6 +124,11 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-09-29 — Add/remove photos on the owner's bike page
+  (`src/app/bikes/[id]/photos/`); photo limit enforced atomically in SQL;
+  removed photos deleted from R2. Shared photo pipeline split into
+  `src/lib/photo-upload.ts` (browser) and `src/lib/bike-photos.ts` (server).
 
 - 2026-09-29 — Photos converted to WebP client-side before upload
   (canvas, WASM fallback for Safari via `@jsquash/webp`); resized to

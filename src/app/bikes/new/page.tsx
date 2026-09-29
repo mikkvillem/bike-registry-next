@@ -133,7 +133,10 @@ export default async function NewBikePage() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          Photos
+          Photos (optional)
+          <span className="text-xs opacity-60">
+            You can add or change photos later from the bike's page.
+          </span>
           <input
             type="file"
             name="images"
