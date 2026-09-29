@@ -1,7 +1,6 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { and, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -10,9 +9,16 @@ import {
   bicycleGenderEnum,
   bicycleTypeEnum,
 } from "@/db/schema/schema";
+import { photoUrlsFromForm } from "@/lib/bike-photos";
 import { getSession } from "@/lib/session";
-
-const uploadsDir = path.join(process.cwd(), "public", "uploads");
+import {
+  ALLOWED_IMAGE_TYPES,
+  createUploadUrl,
+  isR2Configured,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES_PER_BIKE,
+  newImageKey,
+} from "@/lib/storage";
 
 function asEnumValue<T extends readonly string[]>(
   values: T,
@@ -21,22 +27,77 @@ function asEnumValue<T extends readonly string[]>(
   return values.includes(value as string) ? (value as T[number]) : undefined;
 }
 
-async function saveImages(bikeId: string, files: File[]): Promise<string[]> {
-  const validFiles = files.filter((file) => file.size > 0);
-  if (validFiles.length === 0) return [];
+export type ImageUploadRequest = { contentType: string; size: number };
 
-  const bikeDir = path.join(uploadsDir, bikeId);
-  await mkdir(bikeDir, { recursive: true });
+export type ImageUploadTargets =
+  | { mode: "local" }
+  | { mode: "r2"; uploads: { key: string; url: string }[] }
+  | { mode: "error"; message: string };
 
-  const urls: string[] = [];
-  for (const [index, file] of validFiles.entries()) {
-    const ext = path.extname(file.name) || "";
-    const filename = `${index}-${Date.now()}${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(bikeDir, filename), buffer);
-    urls.push(`/uploads/${bikeId}/${filename}`);
+/**
+ * Step 1 of adding photos: the browser asks for presigned R2 upload URLs,
+ * PUTs each file directly to R2, then submits the returned keys with the
+ * form. Returns `local` when R2 isn't configured (dev), in which case the
+ * form posts the files themselves. Pass `bikeId` when adding to an existing
+ * bike so the photo limit counts the photos it already has.
+ */
+export async function requestImageUploads(
+  files: ImageUploadRequest[],
+  bikeId?: string,
+): Promise<ImageUploadTargets> {
+  const session = await getSession();
+  if (!session) throw new Error("Not signed in.");
+
+  let existing = 0;
+  if (bikeId) {
+    const [bike] = await db
+      .select({ imageUrls: bicycle.imageUrls })
+      .from(bicycle)
+      .where(
+        and(
+          eq(bicycle.id, bikeId),
+          eq(bicycle.userId, session.user.id),
+          isNull(bicycle.deletedAt),
+        ),
+      )
+      .limit(1);
+    if (!bike) return { mode: "error", message: "Bike not found." };
+    existing = bike.imageUrls?.length ?? 0;
   }
-  return urls;
+  const remaining = MAX_IMAGES_PER_BIKE - existing;
+  if (files.length > remaining) {
+    return {
+      mode: "error",
+      message:
+        remaining > 0
+          ? `A bike can have up to ${MAX_IMAGES_PER_BIKE} photos — you can add ${remaining} more.`
+          : `A bike can have up to ${MAX_IMAGES_PER_BIKE} photos. Remove one to add another.`,
+    };
+  }
+  if (!isR2Configured()) return { mode: "local" };
+  for (const file of files) {
+    if (!(file.contentType in ALLOWED_IMAGE_TYPES)) {
+      return {
+        mode: "error",
+        message: "Photos must be converted to WebP before upload.",
+      };
+    }
+    if (!(file.size > 0 && file.size <= MAX_IMAGE_BYTES)) {
+      return {
+        mode: "error",
+        message: `Each photo must be under ${MAX_IMAGE_BYTES / 1024 / 1024} MB.`,
+      };
+    }
+  }
+
+  const uploads = await Promise.all(
+    files.map(async (file) => {
+      const key = newImageKey(session.user.id, file.contentType);
+      const url = await createUploadUrl(key, file.contentType, file.size);
+      return { key, url };
+    }),
+  );
+  return { mode: "r2", uploads };
 }
 
 export async function createBike(formData: FormData) {
@@ -51,10 +112,7 @@ export async function createBike(formData: FormData) {
   const model = (formData.get("model") as string)?.trim() || null;
 
   const bikeId = crypto.randomUUID();
-  const images = formData
-    .getAll("images")
-    .filter((f): f is File => f instanceof File);
-  const imageUrls = await saveImages(bikeId, images);
+  const imageUrls = await photoUrlsFromForm(session.user.id, bikeId, formData);
 
   const weightRaw = formData.get("weight");
   const numGearsRaw = formData.get("numGears");

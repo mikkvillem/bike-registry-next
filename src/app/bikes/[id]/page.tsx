@@ -1,6 +1,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { BikePhotos } from "@/app/bikes/[id]/photos/bike-photos";
 import {
   markTheftRecovered,
   publishTheft,
@@ -9,6 +10,7 @@ import {
 import { db } from "@/db";
 import { bicycle, type Theft, theft } from "@/db/schema/schema";
 import { getSession } from "@/lib/session";
+import { MAX_IMAGES_PER_BIKE } from "@/lib/storage";
 
 function TheftDetails({ report }: { report: Theft }) {
   return (
@@ -136,19 +138,11 @@ export default async function BikePage({
         </div>
       )}
 
-      {bike.imageUrls && bike.imageUrls.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {bike.imageUrls.map((url) => (
-            // biome-ignore lint/performance/noImgElement: local file uploads, not optimizable by next/image
-            <img
-              key={url}
-              src={url}
-              alt=""
-              className="aspect-square w-full rounded object-cover"
-            />
-          ))}
-        </div>
-      )}
+      <BikePhotos
+        bikeId={bike.id}
+        urls={bike.imageUrls ?? []}
+        max={MAX_IMAGES_PER_BIKE}
+      />
 
       <dl className="mt-6 grid grid-cols-2 gap-y-3 text-sm">
         <dt className="opacity-60">Serial number</dt>

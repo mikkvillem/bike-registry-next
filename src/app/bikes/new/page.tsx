@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { createBike } from "@/app/bikes/actions";
 import {
   bicycleGearSystemEnum,
   bicycleGenderEnum,
   bicycleTypeEnum,
 } from "@/db/schema/schema";
 import { getSession } from "@/lib/session";
+import { BikeForm } from "./bike-form";
 
 export default async function NewBikePage() {
   const session = await getSession();
@@ -15,7 +15,7 @@ export default async function NewBikePage() {
     <main className="mx-auto max-w-lg p-6">
       <h1 className="text-2xl font-semibold">Add a bike</h1>
 
-      <form action={createBike} className="mt-6 flex flex-col gap-4">
+      <BikeForm>
         <label className="flex flex-col gap-1 text-sm">
           Make
           <input
@@ -133,7 +133,10 @@ export default async function NewBikePage() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          Photos
+          Photos (optional)
+          <span className="text-xs opacity-60">
+            You can add or change photos later from the bike's page.
+          </span>
           <input
             type="file"
             name="images"
@@ -142,14 +145,7 @@ export default async function NewBikePage() {
             className="rounded border border-black/20 p-2 dark:border-white/20"
           />
         </label>
-
-        <button
-          type="submit"
-          className="mt-2 rounded bg-foreground px-4 py-2 text-sm text-background"
-        >
-          Save bike
-        </button>
-      </form>
+      </BikeForm>
     </main>
   );
 }
