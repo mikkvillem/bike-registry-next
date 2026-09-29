@@ -3,9 +3,11 @@
 import { unstable_rethrow } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { createBike, requestImageUploads } from "@/app/bikes/actions";
+import { convertToWebp } from "@/lib/image-convert";
 
-// Wraps the add-bike form so photos go straight from the browser to R2
-// (presigned PUTs) before the rest of the form is submitted with their keys.
+// Wraps the add-bike form: photos are converted to WebP in the browser, then
+// go straight to R2 (presigned PUTs) before the rest of the form is
+// submitted with their keys.
 export function BikeForm({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -13,11 +15,18 @@ export function BikeForm({ children }: { children: ReactNode }) {
   async function submit(formData: FormData) {
     setError(null);
     try {
-      const files = formData
+      const picked = formData
         .getAll("images")
         .filter((f): f is File => f instanceof File && f.size > 0);
+      formData.delete("images");
 
-      if (files.length > 0) {
+      if (picked.length > 0) {
+        setStatus("Preparing photos…");
+        const files: File[] = [];
+        // One at a time: decoding several full-size phone photos at once
+        // can exhaust memory on phones.
+        for (const file of picked) files.push(await convertToWebp(file));
+
         const targets = await requestImageUploads(
           files.map((file) => ({ contentType: file.type, size: file.size })),
         );
@@ -34,10 +43,11 @@ export function BikeForm({ children }: { children: ReactNode }) {
               if (!res.ok) throw new Error("A photo failed to upload.");
             }),
           );
-          formData.delete("images");
           for (const { key } of targets.uploads) {
             formData.append("imageKeys", key);
           }
+        } else {
+          for (const file of files) formData.append("images", file);
         }
       }
 

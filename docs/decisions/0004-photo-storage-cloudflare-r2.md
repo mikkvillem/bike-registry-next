@@ -22,7 +22,13 @@ Owner chose **Cloudflare R2**. Implementation:
   public on `/b/[id]`, so no signed read URLs.
 - Keys `bikes/<userId>/<uuid>.<ext>`; the server checks the prefix and that
   the object exists before saving a bike.
-- Limits: 8 photos per bike, 10 MB each, JPEG/PNG/WebP/HEIC/HEIF/AVIF.
+- **All photos converted to WebP in the browser** before upload (owner's
+  call, 2026-09-29; `src/lib/image-convert.ts`): long edge capped at
+  2560 px, quality 0.82. Canvas encoder where supported; Safari can't
+  encode WebP on a canvas, so it lazy-loads a WASM encoder
+  (`@jsquash/webp`). Re-encoding also strips EXIF metadata, including GPS
+  location. The server only accepts `image/webp`.
+- Limits: 8 photos per bike, 10 MB each (after conversion).
 - Local-disk fallback stays for dev when `R2_*` env vars are unset.
 
 ## Consequences
@@ -30,6 +36,8 @@ Owner chose **Cloudflare R2**. Implementation:
 - Setup steps in `docs/r2-setup.md` (bucket, public access, CORS, token,
   env vars).
 - Follow-ups: clean up orphaned uploads from abandoned forms; delete photos
-  when a bike is deleted (once delete exists); HEIC photos don't render in
-  most non-Apple browsers — consider converting on upload later.
+  when a bike is deleted (once delete exists). HEIC files can only be
+  converted by browsers that can decode them (Safari/iOS); elsewhere the
+  user is asked for a JPEG/PNG. iPhones mostly hand the browser a JPEG
+  anyway.
 - The limits above are defaults, not a product decision; change freely.

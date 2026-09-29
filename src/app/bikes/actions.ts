@@ -62,7 +62,7 @@ export async function requestImageUploads(
     if (!(file.contentType in ALLOWED_IMAGE_TYPES)) {
       return {
         mode: "error",
-        message: "Photos must be JPEG, PNG, WebP, HEIC or AVIF.",
+        message: "Photos must be converted to WebP before upload.",
       };
     }
     if (!(file.size > 0 && file.size <= MAX_IMAGE_BYTES)) {

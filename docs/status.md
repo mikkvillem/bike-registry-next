@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-28 — bike photos on Cloudflare R2 (direct browser uploads)
+**Last updated:** 2026-09-29 — photos converted to WebP in the browser before upload
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -9,7 +9,7 @@ check-in: health first, then what's next, then what's waiting on you.
 ## Health
 
 - [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
-  (2026-09-28).
+  (2026-09-29).
 - [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
   CORS, token and `R2_*` env vars need setting up — follow
   [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
@@ -43,8 +43,10 @@ exist; missing public serial lookup and a stolen-bikes feed.
 
 - Google sign-in (better-auth), dashboard catalog grid, add-bike form with
   photos, owner-only bike detail page.
-- Photos upload from the browser straight to Cloudflare R2 via presigned
-  URLs (`src/lib/storage.ts`); max 8 × 10 MB; local-disk fallback in dev.
+- Photos are converted to WebP in the browser (≤2560 px, EXIF/GPS
+  stripped; `src/lib/image-convert.ts`), then upload straight to
+  Cloudflare R2 via presigned URLs (`src/lib/storage.ts`); max 8 × 10 MB;
+  local-disk fallback in dev.
 - `bicycle` has make/model/serial with a case-insensitive uniqueness index
   on non-deleted rows.
 - `theft` has status (`active`/`recovered`/`resolved`), `publishedAt`,
@@ -76,8 +78,9 @@ Ordered by priority.
    theft status transitions). Fix the old lint errors first so CI can
    start green.
 9. [ ] **Photo follow-ups** — clean up orphaned R2 uploads from abandoned
-   forms; convert HEIC to JPEG (doesn't render outside Safari); add/remove
-   photos on an existing bike.
+   forms; add/remove photos on an existing bike; HEIC picked on desktop
+   Chrome/Firefox is rejected (can't decode) — add a WASM HEIC decoder if
+   that turns out to matter.
 10. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
    `/b/[id]` so shared stolen-bike links preview well.
 
@@ -120,6 +123,10 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-09-29 — Photos converted to WebP client-side before upload
+  (canvas, WASM fallback for Safari via `@jsquash/webp`); resized to
+  2560 px, metadata stripped; server accepts WebP only.
 
 - 2026-09-28 — Photos on Cloudflare R2 (decision 0004): presigned direct
   uploads, `src/lib/storage.ts`, `BikeForm` client wrapper, `.env.example`,

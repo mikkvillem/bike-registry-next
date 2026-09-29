@@ -137,7 +137,7 @@ export default async function NewBikePage() {
           <input
             type="file"
             name="images"
-            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/avif"
+            accept="image/*"
             multiple
             className="rounded border border-black/20 p-2 dark:border-white/20"
           />

@@ -14,13 +14,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 export const MAX_IMAGES_PER_BIKE = 8;
 
+// The browser converts every photo to WebP before upload
+// (src/lib/image-convert.ts), so that's all we accept.
 export const ALLOWED_IMAGE_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
   "image/webp": "webp",
-  "image/heic": "heic",
-  "image/heif": "heif",
-  "image/avif": "avif",
 };
 
 const UPLOAD_URL_TTL_SECONDS = 10 * 60;
