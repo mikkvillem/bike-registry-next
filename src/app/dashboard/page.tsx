@@ -91,7 +91,9 @@ export default async function DashboardPage() {
                       </div>
                     )}
                     <p className="text-xs font-semibold tracking-[0.15em] uppercase">
-                      <span className="opacity-50">{bike.gender ?? "Bike"}</span>
+                      <span className="opacity-50">
+                        {bike.gender ?? "Bike"}
+                      </span>
                       {stolenBikeIds.has(bike.id) && (
                         <span className="ml-2 rounded bg-red-700 px-1.5 py-0.5 text-white">
                           Stolen
