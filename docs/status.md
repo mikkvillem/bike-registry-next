@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-29 — add/remove photos on an existing bike
+**Last updated:** 2026-10-05 — public serial-number lookup for second-hand buyers
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -25,8 +25,8 @@ check-in: health first, then what's next, then what's waiting on you.
 - [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
   reaches the DB via `db:push`.
 
-**MVP readiness:** ~70%. Registration, QR label, and theft reporting
-exist; missing public serial lookup and a stolen-bikes feed.
+**MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
+serial lookup exist; missing a stolen-bikes feed.
 
 ## MVP scope progress
 
@@ -36,7 +36,7 @@ exist; missing public serial lookup and a stolen-bikes feed.
 |---|----------|-------|
 | 1 | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create; photos editable later; no edit/delete of details |
 | 2 | Theft reporting + publishing | ✅ Done — report, publish, recovered, withdraw; no edit yet |
-| 3 | Public lookup by serial number / QR scan | 🟡 QR status page exists; no serial search |
+| 3 | Public lookup by serial number / QR scan | ✅ Done — `/search` page with theft status |
 | 4 | Printable QR tag | ✅ Done — PDF label, placeholder branding |
 
 ## What's built
@@ -69,7 +69,7 @@ Ordered by priority.
 2. [x] ~~**Theft report flow**~~ — done 2026-09-28. Follow-ups: edit an
    open report; confirm step before "Mark recovered"/"Withdraw" (one click
    today).
-3. [ ] **Public serial-number lookup** for second-hand buyers.
+3. [x] ~~**Public serial-number lookup**~~ — done 2026-10-05.
 4. [ ] **Public stolen-bikes feed** — recent-first list of published thefts.
 5. [ ] **Edit / delete bike** — serial typos are currently unfixable.
 6. [ ] **Form error handling** — duplicate serial etc. shown inline
@@ -124,6 +124,10 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-05 — Public serial-number lookup at `/search` — second-hand buyers
+  can search bikes by serial number and see theft status before purchase;
+  links to full bike details and public status page.
 
 - 2026-09-29 — Add/remove photos on the owner's bike page
   (`src/app/bikes/[id]/photos/`); photo limit enforced atomically in SQL;
