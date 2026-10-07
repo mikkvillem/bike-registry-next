@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-29 — add/remove photos on an existing bike
+**Last updated:** 2026-10-07 — edit / delete bike
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -34,7 +34,7 @@ exist; missing public serial lookup and a stolen-bikes feed.
 
 | # | MVP item | State |
 |---|----------|-------|
-| 1 | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create; photos editable later; no edit/delete of details |
+| 1 | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create, edit details, delete; photos editable on bike page |
 | 2 | Theft reporting + publishing | ✅ Done — report, publish, recovered, withdraw; no edit yet |
 | 3 | Public lookup by serial number / QR scan | 🟡 QR status page exists; no serial search |
 | 4 | Printable QR tag | ✅ Done — PDF label, placeholder branding |
@@ -71,7 +71,9 @@ Ordered by priority.
    today).
 3. [ ] **Public serial-number lookup** for second-hand buyers.
 4. [ ] **Public stolen-bikes feed** — recent-first list of published thefts.
-5. [ ] **Edit / delete bike** — serial typos are currently unfixable.
+5. [x] ~~**Edit / delete bike**~~ — done 2026-10-07. Follow-up: edit
+   re-checks uniqueness only via the DB index (raw error shown on clash
+   until item 6).
 6. [ ] **Form error handling** — duplicate serial etc. shown inline
    (`useActionState`) instead of a raw thrown error.
 7. [ ] **Regenerate + commit DB migrations.**
@@ -124,6 +126,10 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-07 — Edit/delete bike: `/bikes/[id]/edit` (specs + serial, same
+  uniqueness rule), delete = soft-delete incl. open theft reports, with
+  confirm. Add form fields extracted to `src/app/bikes/bike-fields.tsx`.
 
 - 2026-09-29 — Add/remove photos on the owner's bike page
   (`src/app/bikes/[id]/photos/`); photo limit enforced atomically in SQL;
