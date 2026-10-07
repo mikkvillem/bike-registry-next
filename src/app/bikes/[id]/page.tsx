@@ -73,12 +73,20 @@ export default async function BikePage({
         <h1 className="text-2xl font-semibold">
           {bike.make} {bike.model}
         </h1>
-        <a
-          href={`/bikes/${bike.id}/label`}
-          className="shrink-0 rounded border px-3 py-1.5 text-sm hover:bg-black/5"
-        >
-          Download QR label (PDF)
-        </a>
+        <div className="flex shrink-0 gap-2">
+          <Link
+            href={`/bikes/${bike.id}/edit`}
+            className="rounded border px-3 py-1.5 text-sm hover:bg-black/5"
+          >
+            Edit
+          </Link>
+          <a
+            href={`/bikes/${bike.id}/label`}
+            className="rounded border px-3 py-1.5 text-sm hover:bg-black/5"
+          >
+            Download QR label (PDF)
+          </a>
+        </div>
       </div>
 
       {openReport ? (
