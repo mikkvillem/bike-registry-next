@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-29 — add/remove photos on an existing bike
+**Last updated:** 2026-10-07 — DB push + R2 confirmed done; registry-issued ID for bikes without a serial proposed (awaiting your call)
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -10,13 +10,12 @@ check-in: health first, then what's next, then what's waiting on you.
 
 - [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
   (2026-09-29).
-- [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
-  CORS, token and `R2_*` env vars need setting up — follow
-  [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
-- [ ] **DB schema applied** — ⚠️ the real DB still needs a push after this
-  PR merges: adds `theft.contact_public`, `theft.stolen_on`,
-  `theft.location` (additive, no data loss). Actions → **DB push** → Run
-  workflow on `main`, type `push`. `DATABASE_URL` secret is set.
+- [x] **Photo storage configured** — R2 bucket, CORS, token and `R2_*` env
+  vars set up by owner (2026-10-07; not independently verified by me). See
+  [`r2-setup.md`](r2-setup.md).
+- [x] **DB schema applied** — owner ran the **DB push** workflow
+  (2026-10-07); `theft.contact_public`, `stolen_on`, `location` are live.
+  Future schema changes need another push (Actions → **DB push**).
 - [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
   all in untouched files (formatting, import order, `!` non-null assertions
   on env vars, Tailwind `@theme` at-rule in `globals.css`).
@@ -101,7 +100,11 @@ Ordered by priority.
 
 ## Waiting on you (decisions)
 
-- [ ] **Run the "DB push" workflow** once this PR is merged (see Health).
+- [ ] **Registry-issued ID for bikes with no findable serial** — idea
+  proposed 2026-10-07; feedback and open questions in the next message /
+  to be logged as decision 0005 once you answer: (1) require ≥1 photo for
+  these? (2) show a "no manufacturer serial" label publicly? (3) let the
+  owner add the real serial later? (4) ID format.
 - [ ] **Theft date/place/details are public once published** — seemed
   implied by "publish it as stolen"; say if any of it should stay private.
   (Decision 0003.)
@@ -112,9 +115,6 @@ Ordered by priority.
   police only?
 - [ ] **Theft takedown / disputes** — owner marks recovered; what about
   false reports and contested claims?
-- [ ] **Set up R2** — create bucket, public domain, CORS, API token, env
-  vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
-  me to double-check config.
 - [ ] **Email/notifications** — send any email at all (e.g. "your bike's page
   was scanned")? Which provider?
 - [ ] **Privacy policy + ToS** — needed before real users (PII + theft
@@ -124,6 +124,9 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-07 — Docs only: marked DB push and R2 setup done; logged the
+  registry-issued-ID idea as a pending decision.
 
 - 2026-09-29 — Add/remove photos on the owner's bike page
   (`src/app/bikes/[id]/photos/`); photo limit enforced atomically in SQL;
