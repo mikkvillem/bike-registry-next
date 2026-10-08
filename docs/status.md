@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-07 — edit / delete bike
+**Last updated:** 2026-10-08 — CLAUDE.md gains Design & UI + how-to-ask sections
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -126,6 +126,10 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-08 — CLAUDE.md: added "How to ask" and "Design & UI" (incl. visual
+  QA via Playwright) sections, merged from a generic design-agent prompt;
+  existing ask-first rules, status/decision-log workflow kept unchanged.
 
 - 2026-10-07 — Edit/delete bike: `/bikes/[id]/edit` (specs + serial, same
   uniqueness rule), delete = soft-delete incl. open theft reports, with

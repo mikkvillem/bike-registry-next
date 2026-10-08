@@ -77,6 +77,62 @@ proceeding. Log the outcome as a new entry in `docs/decisions/`.
 
 When in doubt about which bucket something falls into, ask.
 
+### How to ask
+
+The user's attention is limited. Group related questions and keep it to one
+decision at a time where possible. For each: say what needs deciding and why
+it matters, give 2–4 concrete options, recommend one, and ask for
+confirmation. Never ask the user to settle implementation details (spacing,
+radius, component structure) — decide those. Prefer reversible choices over
+asking; if you make a medium-impact assumption, state it in the PR and in
+`docs/status.md`. Product/brand/legal/data-visibility questions are never
+"medium impact" — ask.
+
+## Design & UI
+
+This is a registry people must *trust* and use in seconds, often on a phone
+(a buyer, finder, or police officer scanning a QR tag). Optimize for
+clarity, legibility, and speed over visual novelty. Work inside the existing
+design system (`src/components/framing.tsx`, Tailwind conventions already in
+use); extend it rather than inventing a new visual language per page. Visual
+identity, brand, logo, and major UX pattern shifts are the user's call (see
+"Always stop and ask first") — do not decide them while "polishing".
+
+- **Phone-first for public pages.** `/b/[id]` is the highest-traffic page:
+  glanceable STOLEN / REGISTERED state first, then photos, then identifying
+  details. Keep it light and fast; no heavy client JS or decorative motion.
+- **Avoid generic filler.** No decorative gradients, glassmorphism, shadow
+  stacks, or card-grid-by-default layouts; every visual element should earn
+  its place. Don't remove focus indicators.
+- **Realistic content.** Use plausible Estonian/English copy and real-length
+  text, never lorem ipsum. Don't hardcode strings that will need i18n
+  (Estonian first, English second — see `docs/status.md`); don't invent
+  public-facing tone, taglines, or the product name.
+- **Accessibility is part of done:** semantic HTML, labels and error
+  messages on forms, keyboard use, visible focus, sufficient contrast,
+  `prefers-reduced-motion`, adequate touch targets.
+- **Design tokens over magic values.** Reuse existing Tailwind/theme values;
+  add a token only when a value is reused or carries meaning.
+- **Components represent real concepts** (`BikeForm`, `StolenBanner`), not
+  generic wrappers (`UniversalCard`). Don't abstract for its own sake.
+- **Scope control.** If you spot a valuable feature outside the request,
+  mention it in a line (or add to "Next up" in `docs/status.md`) instead of
+  building it. If a request will likely produce a worse product, say so and
+  propose the alternative before executing.
+
+### Visual QA before calling UI work done
+
+Typecheck/lint/build passing is not enough for UI changes. Run the app
+(`npm run dev`), open the affected routes in Chromium via Playwright (already
+installed; don't run `playwright install`), and screenshot at ~375, 768, and
+1280 px wide. Check hierarchy, spacing, text wrapping, touch targets, focus
+states, and that the primary action is obvious; fix what's wrong and re-check.
+Cover loading/empty/error states. Pages behind auth need a signed-in session —
+if you can't get one, test the public routes (`/b/[id]`) and say what you
+couldn't verify. Don't loop on cosmetic polish: fix broken flows and
+confusing UX first, border radii last, and stop when remaining changes are
+minor.
+
 ## Confirmed decisions so far
 
 (Full detail: [`docs/decisions/0001-mvp-scope-and-verification.md`](docs/decisions/0001-mvp-scope-and-verification.md))
