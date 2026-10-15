@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-05 — public serial-number lookup for second-hand buyers
+**Last updated:** 2026-10-15 — fix better-auth "Drizzle schema mismatch" (pass auth schema to adapter)
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -124,6 +124,8 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-15 — Fix `BetterAuthError: Drizzle schema mismatch`: `drizzleAdapter` in `src/lib/auth.ts` now gets `schema: authSchema`.
 
 - 2026-10-05 — Public serial-number lookup at `/search` — second-hand buyers
   can search bikes by serial number and see theft status before purchase;
