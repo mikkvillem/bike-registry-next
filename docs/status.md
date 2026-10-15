@@ -9,21 +9,21 @@ check-in: health first, then what's next, then what's waiting on you.
 ## Health
 
 - [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
-  (2026-09-29).
+      (2026-09-29).
 - [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
-  CORS, token and `R2_*` env vars need setting up — follow
-  [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
+      CORS, token and `R2_*` env vars need setting up — follow
+      [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
 - [ ] **DB schema applied** — ⚠️ the real DB still needs a push after this
-  PR merges: adds `theft.contact_public`, `theft.stolen_on`,
-  `theft.location` (additive, no data loss). Actions → **DB push** → Run
-  workflow on `main`, type `push`. `DATABASE_URL` secret is set.
+      PR merges: adds `theft.contact_public`, `theft.stolen_on`,
+      `theft.location` (additive, no data loss). Actions → **DB push** → Run
+      workflow on `main`, type `push`. `DATABASE_URL` secret is set.
 - [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
-  all in untouched files (formatting, import order, `!` non-null assertions
-  on env vars, Tailwind `@theme` at-rule in `globals.css`).
+      all in untouched files (formatting, import order, `!` non-null assertions
+      on env vars, Tailwind `@theme` at-rule in `globals.css`).
 - [ ] **CI** — none. Nothing checks typecheck/lint/build on PRs.
 - [ ] **Tests** — none.
 - [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
-  reaches the DB via `db:push`.
+      reaches the DB via `db:push`.
 
 **MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
 serial lookup exist; missing a stolen-bikes feed.
@@ -32,12 +32,12 @@ serial lookup exist; missing a stolen-bikes feed.
 
 (Scope from [decision 0001](decisions/0001-mvp-scope-and-verification.md).)
 
-| # | MVP item | State |
-|---|----------|-------|
-| 1 | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create; photos editable later; no edit/delete of details |
-| 2 | Theft reporting + publishing | ✅ Done — report, publish, recovered, withdraw; no edit yet |
-| 3 | Public lookup by serial number / QR scan | ✅ Done — `/search` page with theft status |
-| 4 | Printable QR tag | ✅ Done — PDF label, placeholder branding |
+| #   | MVP item                                                    | State                                                                |
+| --- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1   | Bike registration (self-attested, unique serial+make+model) | ✅ Done — create, edit details, delete; photos editable on bike page |
+| 2   | Theft reporting + publishing                                | ✅ Done — report, publish, recovered, withdraw; no edit yet          |
+| 3   | Public lookup by serial number / QR scan                    | ✅ Done — `/search` page with theft status                           |
+| 4   | Printable QR tag                                            | ✅ Done — PDF label, placeholder branding                            |
 
 ## What's built
 
@@ -67,58 +67,60 @@ Ordered by priority.
 
 1. [x] ~~**Fix the build**~~ — done 2026-09-28.
 2. [x] ~~**Theft report flow**~~ — done 2026-09-28. Follow-ups: edit an
-   open report; confirm step before "Mark recovered"/"Withdraw" (one click
-   today).
+       open report; confirm step before "Mark recovered"/"Withdraw" (one click
+       today).
 3. [x] ~~**Public serial-number lookup**~~ — done 2026-10-05.
 4. [ ] **Public stolen-bikes feed** — recent-first list of published thefts.
-5. [ ] **Edit / delete bike** — serial typos are currently unfixable.
+5. [x] ~~**Edit / delete bike**~~ — done 2026-10-07. Follow-up: edit
+       re-checks uniqueness only via the DB index (raw error shown on clash
+       until item 6).
 6. [ ] **Form error handling** — duplicate serial etc. shown inline
-   (`useActionState`) instead of a raw thrown error.
+       (`useActionState`) instead of a raw thrown error.
 7. [ ] **Regenerate + commit DB migrations.**
 8. [ ] **CI** (typecheck, lint, build) and a few tests (uniqueness,
-   theft status transitions). Fix the old lint errors first so CI can
-   start green.
+       theft status transitions). Fix the old lint errors first so CI can
+       start green.
 9. [ ] **Photo follow-ups** — clean up orphaned R2 uploads from abandoned
-   forms; reorder photos / pick the cover photo; HEIC picked on desktop
-   Chrome/Firefox is rejected (can't decode) — add a WASM HEIC decoder if
-   that turns out to matter.
+       forms; reorder photos / pick the cover photo; HEIC picked on desktop
+       Chrome/Firefox is rejected (can't decode) — add a WASM HEIC decoder if
+       that turns out to matter.
 10. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
-   `/b/[id]` so shared stolen-bike links preview well.
+        `/b/[id]` so shared stolen-bike links preview well.
 
 ## Design to hone
 
 - [ ] **Public `/b/[id]` page** — highest-traffic page, least designed.
-  Bring into the framed design system; phone-first, glanceable STOLEN /
-  REGISTERED state, then photos, then identifying details (make, model are
-  missing today).
+      Bring into the framed design system; phone-first, glanceable STOLEN /
+      REGISTERED state, then photos, then identifying details (make, model are
+      missing today).
 - [ ] **Stolen-state treatment** — strong visual + an "I've seen this bike"
-  action (who it contacts is a decision for you, see below).
+      action (who it contacts is a decision for you, see below).
 - [ ] **Estonian UI** — all copy is hardcoded English; set up i18n (ET
-  first, EN second) while it's cheap.
+      first, EN second) while it's cheap.
 - [ ] **Add-bike form** — shorter, serial first with a "where to find it"
-  hint (under the bottom bracket), optional specs collapsed.
+      hint (under the bottom bracket), optional specs collapsed.
 - [ ] **QR label** — placeholder design; waiting on size/format + branding.
 
 ## Waiting on you (decisions)
 
 - [ ] **Run the "DB push" workflow** once this PR is merged (see Health).
 - [ ] **Theft date/place/details are public once published** — seemed
-  implied by "publish it as stolen"; say if any of it should stay private.
-  (Decision 0003.)
+      implied by "publish it as stolen"; say if any of it should stay private.
+      (Decision 0003.)
 - [ ] **Product name + domain** — blocks label, public copy, OG cards.
 - [ ] **Show the full serial number publicly on `/b/[id]`?** — helps
-  finders/buyers match the bike; it's a data-visibility call.
+      finders/buyers match the bike; it's a data-visibility call.
 - [ ] **Theft report contact** — direct phone/email, relay via the app, or
-  police only?
+      police only?
 - [ ] **Theft takedown / disputes** — owner marks recovered; what about
-  false reports and contested claims?
+      false reports and contested claims?
 - [ ] **Set up R2** — create bucket, public domain, CORS, API token, env
-  vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
-  me to double-check config.
+      vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
+      me to double-check config.
 - [ ] **Email/notifications** — send any email at all (e.g. "your bike's page
-  was scanned")? Which provider?
+      was scanned")? Which provider?
 - [ ] **Privacy policy + ToS** — needed before real users (PII + theft
-  claims).
+      claims).
 - [ ] **QR label size/format and branding** (see decision 0002).
 
 ## Changelog

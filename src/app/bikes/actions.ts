@@ -1,13 +1,15 @@
 "use server";
 
 import { and, eq, isNull } from "drizzle-orm";
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { notFound, redirect } from "next/navigation";
 import { db } from "@/db";
 import {
   bicycle,
   bicycleGearSystemEnum,
   bicycleGenderEnum,
   bicycleTypeEnum,
+  theft,
 } from "@/db/schema/schema";
 import { photoUrlsFromForm } from "@/lib/bike-photos";
 import { getSession } from "@/lib/session";
@@ -100,52 +102,116 @@ export async function requestImageUploads(
   return { mode: "r2", uploads };
 }
 
-export async function createBike(formData: FormData) {
-  const session = await getSession();
-  if (!session) redirect("/");
-
+function parseBikeFields(formData: FormData) {
   const make = (formData.get("make") as string)?.trim();
   const serialNumber = (formData.get("serialNumber") as string)?.trim();
   if (!make || !serialNumber) {
     throw new Error("Make and serial number are required.");
   }
-  const model = (formData.get("model") as string)?.trim() || null;
+  const weightRaw = formData.get("weight");
+  const numGearsRaw = formData.get("numGears");
+  return {
+    make,
+    model: (formData.get("model") as string)?.trim() || null,
+    serialNumber,
+    type: asEnumValue(bicycleTypeEnum.enumValues, formData.get("type")),
+    gender: asEnumValue(bicycleGenderEnum.enumValues, formData.get("gender")),
+    gearSystem: asEnumValue(
+      bicycleGearSystemEnum.enumValues,
+      formData.get("gearSystem"),
+    ),
+    wheelSize: (formData.get("wheelSize") as string) || null,
+    weight: weightRaw ? Number(weightRaw) : null,
+    numGears: numGearsRaw ? Number(numGearsRaw) : null,
+    description: (formData.get("description") as string) || null,
+  };
+}
+
+function friendlyDuplicateError(error: unknown) {
+  if (
+    error instanceof Error &&
+    // The driver may wrap the pg error, so check the cause chain too.
+    [error.message, String((error as { cause?: unknown }).cause)].some((m) =>
+      m.includes("bicycle_serial_make_model_idx"),
+    )
+  ) {
+    return new Error(
+      "A bike with this make, model, and serial number is already registered.",
+    );
+  }
+  return error;
+}
+
+async function requireOwnedBike(bikeId: string) {
+  const session = await getSession();
+  if (!session) redirect("/");
+  const [bike] = await db
+    .select({ id: bicycle.id })
+    .from(bicycle)
+    .where(
+      and(
+        eq(bicycle.id, bikeId),
+        eq(bicycle.userId, session.user.id),
+        isNull(bicycle.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!bike) notFound();
+}
+
+/** Edits specs/identity only; photos are managed on the bike page. */
+export async function updateBike(bikeId: string, formData: FormData) {
+  await requireOwnedBike(bikeId);
+  const fields = parseBikeFields(formData);
+  try {
+    await db.update(bicycle).set(fields).where(eq(bicycle.id, bikeId));
+  } catch (error) {
+    throw friendlyDuplicateError(error);
+  }
+  revalidatePath("/dashboard");
+  redirect(`/bikes/${bikeId}`);
+}
+
+/**
+ * Soft-delete: frees the serial for re-registration, and takes the public
+ * page and QR label offline. Any open theft report is withdrawn with it so
+ * no orphaned "active" report lingers.
+ */
+export async function deleteBike(bikeId: string) {
+  await requireOwnedBike(bikeId);
+  const now = new Date();
+  await db.transaction(async (tx) => {
+    await tx
+      .update(theft)
+      .set({ deletedAt: now })
+      .where(and(eq(theft.bicycleId, bikeId), isNull(theft.deletedAt)));
+    await tx
+      .update(bicycle)
+      .set({ deletedAt: now })
+      .where(eq(bicycle.id, bikeId));
+  });
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
+}
+
+export async function createBike(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/");
+
+  const fields = parseBikeFields(formData);
 
   const bikeId = crypto.randomUUID();
   const imageUrls = await photoUrlsFromForm(session.user.id, bikeId, formData);
-
-  const weightRaw = formData.get("weight");
-  const numGearsRaw = formData.get("numGears");
 
   try {
     await db.insert(bicycle).values({
       id: bikeId,
       userId: session.user.id,
-      make,
-      model,
-      serialNumber,
-      type: asEnumValue(bicycleTypeEnum.enumValues, formData.get("type")),
-      gender: asEnumValue(bicycleGenderEnum.enumValues, formData.get("gender")),
-      gearSystem: asEnumValue(
-        bicycleGearSystemEnum.enumValues,
-        formData.get("gearSystem"),
-      ),
-      wheelSize: (formData.get("wheelSize") as string) || null,
-      weight: weightRaw ? Number(weightRaw) : null,
-      numGears: numGearsRaw ? Number(numGearsRaw) : null,
-      description: (formData.get("description") as string) || null,
+      ...fields,
       imageUrls: imageUrls.length > 0 ? imageUrls : null,
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.includes("bicycle_serial_make_model_idx")
-    ) {
-      throw new Error(
-        "A bike with this make, model, and serial number is already registered.",
-      );
-    }
-    throw error;
+    throw friendlyDuplicateError(error);
   }
 
   redirect(`/bikes/${bikeId}`);

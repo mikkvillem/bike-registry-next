@@ -8,19 +8,31 @@ import { takePickedFiles, uploadPhotos } from "@/lib/photo-upload";
 // Wraps the add-bike form: photos are converted to WebP in the browser, then
 // go straight to R2 (presigned PUTs) before the rest of the form is
 // submitted with their keys.
-export function BikeForm({ children }: { children: ReactNode }) {
+export function BikeForm({
+  children,
+  action = createBike,
+  withPhotos = true,
+  submitLabel = "Save bike",
+}: {
+  children: ReactNode;
+  action?: (formData: FormData) => Promise<void>;
+  withPhotos?: boolean;
+  submitLabel?: string;
+}) {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function submit(formData: FormData) {
     setError(null);
     try {
-      await uploadPhotos(takePickedFiles(formData), formData, {
-        onStatus: setStatus,
-      });
+      if (withPhotos) {
+        await uploadPhotos(takePickedFiles(formData), formData, {
+          onStatus: setStatus,
+        });
+      }
 
       setStatus("Saving…");
-      await createBike(formData);
+      await action(formData);
     } catch (e) {
       unstable_rethrow(e); // let Next handle redirect() from the action
       setStatus(null);
@@ -41,7 +53,7 @@ export function BikeForm({ children }: { children: ReactNode }) {
         disabled={status !== null}
         className="mt-2 rounded bg-foreground px-4 py-2 text-sm text-background disabled:opacity-60"
       >
-        {status ?? "Save bike"}
+        {status ?? submitLabel}
       </button>
     </form>
   );
