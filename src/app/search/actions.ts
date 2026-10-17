@@ -71,7 +71,7 @@ export async function searchBikes(query: string): Promise<SearchResult[]> {
         imageUrls: row.imageUrls,
         stolen: row.theftId
           ? {
-              status: row.theftStatus!,
+              status: row.theftStatus ?? "active",
               publishedAt: row.publishedAt,
               stolenOn: row.stolenOn,
               location: row.location,

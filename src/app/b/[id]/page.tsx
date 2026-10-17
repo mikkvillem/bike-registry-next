@@ -1,7 +1,71 @@
 import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
+
+async function getBike(id: string) {
+  const [bike] = await db
+    .select()
+    .from(bicycle)
+    .where(and(eq(bicycle.id, id), isNull(bicycle.deletedAt)))
+    .limit(1);
+  return bike;
+}
+
+async function getActiveTheft(bikeId: string) {
+  const [activeTheft] = await db
+    .select()
+    .from(theft)
+    .where(
+      and(
+        eq(theft.bicycleId, bikeId),
+        eq(theft.status, "active"),
+        isNotNull(theft.publishedAt),
+        isNull(theft.deletedAt),
+      ),
+    )
+    .orderBy(desc(theft.createdAt))
+    .limit(1);
+  return activeTheft;
+}
+
+// Share-card metadata: a stolen-bike link pasted in a chat or social post
+// should preview as a clear STOLEN notice with the first photo.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const bike = await getBike(id);
+  if (!bike) return { title: "Bike not found" };
+  const activeTheft = await getActiveTheft(bike.id);
+
+  const name = [bike.make, bike.model].filter(Boolean).join(" ");
+  const title = activeTheft ? `STOLEN: ${name}` : name;
+  const description = activeTheft
+    ? [
+        "Reported stolen",
+        activeTheft.stolenOn && `on ${activeTheft.stolenOn}`,
+        activeTheft.location && `in ${activeTheft.location}`,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "Registered — not reported stolen.";
+  const image = bike.imageUrls?.[0];
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, ...(image && { images: [image] }) },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+    },
+  };
+}
 
 // Public, no-auth bike status page. Linked from the printable QR label so a
 // finder, buyer, or police officer can check registration + theft status by
@@ -14,27 +78,9 @@ export default async function PublicBikePage({
 }) {
   const { id } = await params;
 
-  const [bike] = await db
-    .select()
-    .from(bicycle)
-    .where(and(eq(bicycle.id, id), isNull(bicycle.deletedAt)))
-    .limit(1);
-
+  const bike = await getBike(id);
   if (!bike) notFound();
-
-  const [activeTheft] = await db
-    .select()
-    .from(theft)
-    .where(
-      and(
-        eq(theft.bicycleId, bike.id),
-        eq(theft.status, "active"),
-        isNotNull(theft.publishedAt),
-        isNull(theft.deletedAt),
-      ),
-    )
-    .orderBy(desc(theft.createdAt))
-    .limit(1);
+  const activeTheft = await getActiveTheft(bike.id);
 
   return (
     <main className="mx-auto max-w-2xl p-6">

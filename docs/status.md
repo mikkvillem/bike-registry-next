@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-15 — fix better-auth "Drizzle schema mismatch" (pass auth schema to adapter)
+**Last updated:** 2026-10-17 — stolen-bikes feed, inline form errors, lint clean, CI, tests, migrations, 404 + OG cards
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -8,8 +8,7 @@ check-in: health first, then what's next, then what's waiting on you.
 
 ## Health
 
-- [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
-      (2026-09-29).
+- [x] **Builds** — `tsc` + `next build` pass (2026-10-17).
 - [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
       CORS, token and `R2_*` env vars need setting up — follow
       [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
@@ -17,16 +16,21 @@ check-in: health first, then what's next, then what's waiting on you.
       PR merges: adds `theft.contact_public`, `theft.stolen_on`,
       `theft.location` (additive, no data loss). Actions → **DB push** → Run
       workflow on `main`, type `push`. `DATABASE_URL` secret is set.
-- [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
-      all in untouched files (formatting, import order, `!` non-null assertions
-      on env vars, Tailwind `@theme` at-rule in `globals.css`).
-- [ ] **CI** — none. Nothing checks typecheck/lint/build on PRs.
-- [ ] **Tests** — none.
-- [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
-      reaches the DB via `db:push`.
+- [x] **Lint clean** (`npm run lint`) — 0 errors (2026-10-17).
+- [x] **CI** — `.github/workflows/ci.yml` runs lint, typecheck, tests and
+      build on PRs and `main`. ⚠️ Consider making it a required check in
+      branch protection.
+- [x] **Tests** — `npm test` (vitest + in-memory Postgres via PGlite, applied
+      from the committed migration): serial uniqueness and theft rules. No
+      UI/server-action tests yet.
+- [x] **DB migrations committed** — `src/db/migrations/0000_*.sql`, used by
+      the tests. ⚠️ The real DB is still managed with `db:push`; don't run
+      `db:migrate` against it (tables already exist). Regenerate with
+      `npm run db:generate` whenever the schema changes.
 
-**MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
-serial lookup exist; missing a stolen-bikes feed.
+**MVP readiness:** all four scope items plus the public stolen feed are
+built. Remaining blockers are your setup/decisions (R2, DB push, privacy/ToS,
+name).
 
 ## MVP scope progress
 
@@ -70,22 +74,26 @@ Ordered by priority.
        open report; confirm step before "Mark recovered"/"Withdraw" (one click
        today).
 3. [x] ~~**Public serial-number lookup**~~ — done 2026-10-05.
-4. [ ] **Public stolen-bikes feed** — recent-first list of published thefts.
+4. [x] ~~**Public stolen-bikes feed**~~ — done 2026-10-17 (`/stolen`, latest
+       50; no pagination or location filter yet).
 5. [x] ~~**Edit / delete bike**~~ — done 2026-10-07. Follow-up: edit
        re-checks uniqueness only via the DB index (raw error shown on clash
        until item 6).
-6. [ ] **Form error handling** — duplicate serial etc. shown inline
-       (`useActionState`) instead of a raw thrown error.
-7. [ ] **Regenerate + commit DB migrations.**
-8. [ ] **CI** (typecheck, lint, build) and a few tests (uniqueness,
-       theft status transitions). Fix the old lint errors first so CI can
-       start green.
+6. [x] ~~**Form error handling**~~ — done 2026-10-17 for add/edit bike
+       (actions return `{ error }`; thrown messages are hidden in
+       production). Theft-report actions still throw — same fix needed.
+7. [x] ~~**Commit DB migrations**~~ — done 2026-10-17 (see Health).
+8. [x] ~~**CI + tests**~~ — done 2026-10-17. Follow-up: tests for server
+       actions / UI.
 9. [ ] **Photo follow-ups** — clean up orphaned R2 uploads from abandoned
        forms; reorder photos / pick the cover photo; HEIC picked on desktop
        Chrome/Firefox is rejected (can't decode) — add a WASM HEIC decoder if
        that turns out to matter.
-10. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
-        `/b/[id]` so shared stolen-bike links preview well.
+10. [x] ~~**Polish basics**~~ — done 2026-10-17: 404 page, title template,
+        OpenGraph/Twitter cards on `/b/[id]` ("STOLEN: make model" + first
+        photo). Set `NEXT_PUBLIC_SITE_URL` in production so card URLs resolve.
+11. [ ] **Theft-report form errors** — `reportTheft` validation errors
+        (date etc.) are thrown, so production shows a generic message.
 
 ## Design to hone
 
@@ -126,6 +134,11 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-17 — Public stolen-bikes feed (`/stolen`) + nav links; add/edit
+  bike actions return inline errors; lint fixed (`requireEnv` helper, Biome
+  CSS override) and CI added; vitest + PGlite tests; first migration
+  committed; `not-found` page, title template, OG/Twitter cards on `/b/[id]`.
 
 - 2026-10-15 — Fix `BetterAuthError: Drizzle schema mismatch`: `drizzleAdapter` in `src/lib/auth.ts` now gets `schema: authSchema`.
 

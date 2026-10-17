@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
 import Link from "next/link";
-import { searchBikes, type SearchResult } from "./actions";
+import { useActionState } from "react";
+import { type SearchResult, searchBikes } from "./actions";
 
 type State =
   | { results: SearchResult[]; query: string; error: null }
   | { results: null; query: string; error: string | null };
 
 async function handleSearch(
-  prevState: State,
+  _prevState: State,
   formData: FormData,
 ): Promise<State> {
   const query = (formData.get("query") as string) || "";
@@ -51,7 +51,6 @@ export default function SearchPage() {
           placeholder="Enter serial number..."
           defaultValue={state?.query || ""}
           className="flex-1 rounded border border-black/20 px-4 py-2 text-sm dark:border-white/20"
-          autoFocus
         />
         <button
           type="submit"
@@ -123,8 +122,10 @@ export default function SearchPage() {
                       {bike.stolen && (
                         <p className="mt-2 text-xs text-red-700 dark:text-red-300">
                           Reported stolen
-                          {bike.stolen.stolenOn && ` on ${bike.stolen.stolenOn}`}
-                          {bike.stolen.location && ` in ${bike.stolen.location}`}
+                          {bike.stolen.stolenOn &&
+                            ` on ${bike.stolen.stolenOn}`}
+                          {bike.stolen.location &&
+                            ` in ${bike.stolen.location}`}
                         </p>
                       )}
                     </div>

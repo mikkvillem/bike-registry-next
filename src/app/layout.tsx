@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bike Registry",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
+  title: { default: "Bike Registry", template: "%s — Bike Registry" },
   description: "Keep track of our bikes",
 };
 
@@ -36,14 +39,22 @@ export default async function RootLayout({
           <Link href="/" className="font-semibold">
             Bike Registry
           </Link>
-          {session && (
-            <nav className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-sm hover:underline">
-                Dashboard
-              </Link>
-              <SignOutButton />
-            </nav>
-          )}
+          <nav className="flex items-center gap-4">
+            <Link href="/search" className="text-sm hover:underline">
+              Check a bike
+            </Link>
+            <Link href="/stolen" className="text-sm hover:underline">
+              Stolen bikes
+            </Link>
+            {session && (
+              <>
+                <Link href="/dashboard" className="text-sm hover:underline">
+                  Dashboard
+                </Link>
+                <SignOutButton />
+              </>
+            )}
+          </nav>
         </header>
         {children}
       </body>
