@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-17 — stolen-bikes feed, inline form errors, lint clean, CI, tests, migrations, 404 + OG cards
+**Last updated:** 2026-10-18 — fix outdated pnpm lockfile (after 2026-10-17: stolen feed, CI, tests, migrations)
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -134,6 +134,8 @@ Ordered by priority.
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-18 — Regenerated `pnpm-lock.yaml` for the new dev deps (vitest, PGlite); fixes `ERR_PNPM_OUTDATED_LOCKFILE` on deploy. Both `package-lock.json` and `pnpm-lock.yaml` are committed — keep them in sync or drop one.
 
 - 2026-10-17 — Public stolen-bikes feed (`/stolen`) + nav links; add/edit
   bike actions return inline errors; lint fixed (`requireEnv` helper, Biome
