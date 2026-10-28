@@ -120,14 +120,31 @@ and no money changing hands.
 
 The loop can't do these — they need your accounts.
 
-- [ ] **Set up Cloudflare R2** — bucket, public domain, CORS, API token, env
-      vars. Steps in [`r2-setup.md`](r2-setup.md). Until this is done, photos
-      only work in local dev.
-- [ ] **Run the "DB push" workflow** on `main` to apply the pending schema
-      columns (Actions → DB push → type `push`).
-- [ ] **Pick a host and deploy** — Vercel is the path of least resistance for
-      Next.js 15. Set `NEXT_PUBLIC_SITE_URL` there or printed QR codes will
-      resolve to the wrong host.
+- [x] **Cloudflare R2** — done. Bucket live, all five `R2_*` vars in the
+      local `.env`.
+- [x] **DB schema pushed** — done. Verified against the live Neon DB on
+      2026-10-28.
+- [x] **Host picked** — Vercel, at `bike-registry-next.vercel.app`.
+- [ ] 🔴 **Add the env vars to Vercel.** This is the only thing standing
+      between you and a working public URL. The deployment currently returns
+      **500 on every route**: `.env` is gitignored, so production has no
+      `DATABASE_URL` and the app cannot boot.
+
+      Eleven vars are needed:
+      `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`,
+      `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_SITE_URL`,
+      `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+      `R2_BUCKET`, `R2_PUBLIC_URL`.
+
+      Two must differ from your local values:
+      `BETTER_AUTH_URL` is `http://localhost:3000` locally and must be
+      `https://bike-registry-next.vercel.app` in production.
+      `NEXT_PUBLIC_SITE_URL` is already correct.
+
+- [ ] **Add the production callback to Google OAuth.** Once auth runs on
+      Vercel, the authorized redirect URI list in the Google Cloud console
+      needs the production callback alongside the localhost one, or sign-in
+      fails with `redirect_uri_mismatch`.
 
 ---
 

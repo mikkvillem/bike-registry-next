@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-28 — async rollout loop set up (`/advance` command, `rollout.md`, `questions.md`)
+**Last updated:** 2026-10-28 — async rollout loop set up; R2 + DB push confirmed done; Vercel deploy returns 500 (prod env vars missing)
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -14,13 +14,11 @@ needs from you — answer there, inline, whenever you have a minute.
 
 - [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
       (2026-09-29).
-- [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
-      CORS, token and `R2_*` env vars need setting up — follow
-      [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
-- [ ] **DB schema applied** — ⚠️ the real DB still needs a push after this
-      PR merges: adds `theft.contact_public`, `theft.stolen_on`,
-      `theft.location` (additive, no data loss). Actions → **DB push** → Run
-      workflow on `main`, type `push`. `DATABASE_URL` secret is set.
+- [x] **Photo storage configured** — R2 bucket live, all five `R2_*` vars
+      set **in the local `.env` only**. Not yet set on Vercel.
+- [x] **DB schema applied** — verified 2026-10-28 against the live Neon DB:
+      `theft` has `contact_public`, `stolen_on`, `location`. All seven
+      tables present.
 - [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
       all in untouched files (formatting, import order, `!` non-null assertions
       on env vars, Tailwind `@theme` at-rule in `globals.css`).
@@ -28,6 +26,10 @@ needs from you — answer there, inline, whenever you have a minute.
 - [ ] **Tests** — none.
 - [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
       reaches the DB via `db:push`.
+- [ ] **Production deploy works** — ❌ `https://bike-registry-next.vercel.app`
+      is live but every route returns **500**. Cause: `.env` is gitignored and
+      the vars were never added to Vercel, so production has no
+      `DATABASE_URL`. See [`questions.md`](questions.md) → infrastructure.
 
 **MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
 serial lookup exist; missing a stolen-bikes feed.
@@ -114,12 +116,16 @@ Answer them inline there. Summary of what's open:
 - Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
   this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
   Q7 QR label format.
-- By hand, on your accounts: set up R2, run the **DB push** workflow, deploy
-  and set `NEXT_PUBLIC_SITE_URL`.
+- By hand, on your accounts: **add the env vars to Vercel** — this is the
+  single thing blocking a working public URL. R2 and the DB push are done.
 
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-28 — Verified live infra: R2 configured and Neon schema already
+  pushed (both Health boxes ticked). Found the Vercel deployment 500s on
+  every route because the env vars live only in the gitignored local `.env`.
 
 - 2026-10-28 — Async rollout setup: `/advance` slash command (one unit of
   work per run, opens a PR, parks blocked decisions), `docs/rollout.md`
