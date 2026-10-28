@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-28 — async rollout loop set up; R2 + DB push confirmed done; Vercel deploy returns 500 (prod env vars missing)
+**Last updated:** 2026-10-28 — async rollout loop set up; production is live and serving at bike-registry-next.vercel.app
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -26,10 +26,10 @@ needs from you — answer there, inline, whenever you have a minute.
 - [ ] **Tests** — none.
 - [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
       reaches the DB via `db:push`.
-- [ ] **Production deploy works** — ❌ `https://bike-registry-next.vercel.app`
-      is live but every route returns **500**. Cause: `.env` is gitignored and
-      the vars were never added to Vercel, so production has no
-      `DATABASE_URL`. See [`questions.md`](questions.md) → infrastructure.
+- [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
+      serves 200 on `/` and `/search`, and the serial lookup queries the live
+      Neon DB without error (verified 2026-10-28). Google sign-in on
+      production is untested — see **Next up**.
 
 **MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
 serial lookup exist; missing a stolen-bikes feed.
@@ -116,12 +116,16 @@ Answer them inline there. Summary of what's open:
 - Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
   this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
   Q7 QR label format.
-- By hand, on your accounts: **add the env vars to Vercel** — this is the
-  single thing blocking a working public URL. R2 and the DB push are done.
+- Infrastructure is done: R2, DB schema, and a working production deploy.
+  The only remaining by-hand item is the Google OAuth production callback,
+  and only if sign-in turns out to be broken there.
 
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-28 — Production env vars set on Vercel; the deploy now serves
+  `/` and `/search` and queries the live DB. Infra is no longer a blocker.
 
 - 2026-10-28 — Verified live infra: R2 configured and Neon schema already
   pushed (both Health boxes ticked). Found the Vercel deployment 500s on

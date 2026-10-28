@@ -54,11 +54,9 @@ This is the product. Most of the remaining value is in these four items.
 
 - [ ] **`/privacy` and `/terms` routes** with placeholder content. Behind Q5
       for the real text.
-- [x] **Deploy exists** — Vercel, `bike-registry-next.vercel.app`.
-- [ ] 🔴 **Make the deploy actually boot** — every route 500s today because
-      the env vars were only ever set in the gitignored local `.env`. Your
-      task; see [`questions.md`](questions.md). Nothing in Stage 2 or 3 can
-      be checked on the real site until this is fixed.
+- [x] **Deployed and serving** — Vercel, `bike-registry-next.vercel.app`,
+      env vars set, querying the live DB. Stage 2 work can now be checked on
+      the real site.
 - [ ] **Smoke test on a real phone** — register a bike, print a label, scan
       it, report it stolen, find it by serial.
 

@@ -125,26 +125,12 @@ The loop can't do these — they need your accounts.
 - [x] **DB schema pushed** — done. Verified against the live Neon DB on
       2026-10-28.
 - [x] **Host picked** — Vercel, at `bike-registry-next.vercel.app`.
-- [ ] 🔴 **Add the env vars to Vercel.** This is the only thing standing
-      between you and a working public URL. The deployment currently returns
-      **500 on every route**: `.env` is gitignored, so production has no
-      `DATABASE_URL` and the app cannot boot.
+- [x] **Env vars set on Vercel** — done 2026-10-28. Production serves and
+      queries the live DB.
 
-      Eleven vars are needed:
-      `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`,
-      `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_SITE_URL`,
-      `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
-      `R2_BUCKET`, `R2_PUBLIC_URL`.
-
-      Two must differ from your local values:
-      `BETTER_AUTH_URL` is `http://localhost:3000` locally and must be
-      `https://bike-registry-next.vercel.app` in production.
-      `NEXT_PUBLIC_SITE_URL` is already correct.
-
-- [ ] **Add the production callback to Google OAuth.** Once auth runs on
-      Vercel, the authorized redirect URI list in the Google Cloud console
-      needs the production callback alongside the localhost one, or sign-in
-      fails with `redirect_uri_mismatch`.
+- [ ] **Check Google sign-in on production.** Untested. If it fails with
+      `redirect_uri_mismatch`, add the production callback to the authorized
+      redirect URIs in the Google Cloud console, alongside the localhost one.
 
 ---
 
