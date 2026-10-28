@@ -1,10 +1,14 @@
 # Project Status
 
-**Last updated:** 2026-10-15 — fix better-auth "Drizzle schema mismatch" (pass auth schema to adapter)
+**Last updated:** 2026-10-28 — async rollout loop set up (`/advance` command, `rollout.md`, `questions.md`)
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
 check-in: health first, then what's next, then what's waiting on you.
+
+**Working async?** [`rollout.md`](rollout.md) is the critical path to launch
+and [`questions.md`](questions.md) is where the agent parks decisions it
+needs from you — answer there, inline, whenever you have a minute.
 
 ## Health
 
@@ -103,29 +107,24 @@ Ordered by priority.
 
 ## Waiting on you (decisions)
 
-- [ ] **Run the "DB push" workflow** once this PR is merged (see Health).
-- [ ] **Theft date/place/details are public once published** — seemed
-      implied by "publish it as stolen"; say if any of it should stay private.
-      (Decision 0003.)
-- [ ] **Product name + domain** — blocks label, public copy, OG cards.
-- [ ] **Show the full serial number publicly on `/b/[id]`?** — helps
-      finders/buyers match the bike; it's a data-visibility call.
-- [ ] **Theft report contact** — direct phone/email, relay via the app, or
-      police only?
-- [ ] **Theft takedown / disputes** — owner marks recovered; what about
-      false reports and contested claims?
-- [ ] **Set up R2** — create bucket, public domain, CORS, API token, env
-      vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
-      me to double-check config.
-- [ ] **Email/notifications** — send any email at all (e.g. "your bike's page
-      was scanned")? Which provider?
-- [ ] **Privacy policy + ToS** — needed before real users (PII + theft
-      claims).
-- [ ] **QR label size/format and branding** (see decision 0002).
+All open decisions now live in [`questions.md`](questions.md), with a
+recommended default for each so the loop can keep moving while you think.
+Answer them inline there. Summary of what's open:
+
+- Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
+  this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
+  Q7 QR label format.
+- By hand, on your accounts: set up R2, run the **DB push** workflow, deploy
+  and set `NEXT_PUBLIC_SITE_URL`.
 
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-28 — Async rollout setup: `/advance` slash command (one unit of
+  work per run, opens a PR, parks blocked decisions), `docs/rollout.md`
+  (critical path to launch), `docs/questions.md` (answer-inline question
+  inbox). No code changes.
 
 - 2026-10-15 — Fix `BetterAuthError: Drizzle schema mismatch`: `drizzleAdapter` in `src/lib/auth.ts` now gets `schema: authSchema`.
 

@@ -1,0 +1,137 @@
+# Question inbox
+
+**How this works.** The agent loop (`/advance`) writes questions here when it
+hits something only you can decide. It does **not** wait for you — it picks a
+provisional default and keeps building. Answer whenever you have a minute.
+
+**To answer:** type on the `**Answer:**` line. That's it. Free text is fine —
+"yes", "option B", "call it Velotser, grab the .ee". The next loop iteration
+harvests every answered question, logs it in `docs/decisions/`, and reworks
+anything that was built on a now-wrong default.
+
+Questions are ordered by how hard they block the rollout.
+
+---
+
+## Open
+
+### Q1 — Product name and domain
+
+**Blocks:** public copy, QR label branding, OpenGraph cards, the domain you
+deploy to. Everything a user sees. Cheap to change today, expensive after
+launch and after any labels get printed.
+
+**Recommended default:** keep "Bike Registry" as a placeholder; the loop will
+route every user-facing name through one constant so a rename is a one-line
+change.
+
+**Answer:**
+
+---
+
+### Q2 — Show the full serial number on the public page?
+
+**Blocks:** the `/b/[id]` public page design, which is the highest-traffic
+page and the least designed.
+
+**Options:** show it in full (best for finders and buyers matching a bike),
+mask it partially (e.g. last 4 chars, enough to confirm but not to forge a
+claim), or hide it entirely and only confirm a match via `/search`.
+
+**Recommended default:** mask to the last 4 characters. A buyer can still
+confirm the bike in front of them; a thief can't copy a serial off the page.
+
+**Answer:**
+
+---
+
+### Q3 — Who does "I've seen this bike" contact?
+
+**Blocks:** the stolen-state call to action, which is the point of the whole
+product.
+
+**Options:** the owner's contact directly (only if they opted in), a relay
+through the app (needs email sending, see Q4), or a "report to police"
+pointer with no messaging at all.
+
+**Recommended default:** show the owner's contact when they opted in; show a
+police pointer when they didn't. No relay until email exists.
+
+**Answer:**
+
+---
+
+### Q4 — Email: send any at all, and via which provider?
+
+**Blocks:** relayed contact, scan notifications, any account recovery.
+
+**Recommended default:** none for MVP. Ship without email; it is not on the
+critical path to a first public page.
+
+**Answer:**
+
+---
+
+### Q5 — Privacy policy and terms of service
+
+**Blocks:** taking real users. You are collecting PII and theft claims in the
+EU. The loop will not write legal copy.
+
+**Needed from you:** the legal entity (you personally, or an OÜ?) and either
+the text or a decision to use a template service.
+
+**Recommended default:** the loop builds the `/privacy` and `/terms` routes
+with a clearly-marked placeholder, so the pages exist and the content slots
+in later.
+
+**Answer:**
+
+---
+
+### Q6 — Theft takedown and disputes
+
+**Blocks:** nothing today, but it's the first thing that bites after a real
+false report.
+
+**Options:** owner self-serve only (mark recovered / withdraw — what exists
+now), or add an appeal route where a contested registration gets flagged.
+
+**Recommended default:** keep self-serve for MVP; log this as a known gap.
+
+**Answer:**
+
+---
+
+### Q7 — QR label size, format, and branding
+
+**Blocks:** printing real labels. Not the web rollout.
+
+**Options:** keyring tag, small vinyl sticker (circle or square), or a
+printable A4/Letter sheet of several.
+
+**Recommended default:** A4 sheet of stickers, since it needs no fulfillment
+and no money changing hands.
+
+**Answer:**
+
+---
+
+## Infrastructure you need to do by hand
+
+The loop can't do these — they need your accounts.
+
+- [ ] **Set up Cloudflare R2** — bucket, public domain, CORS, API token, env
+      vars. Steps in [`r2-setup.md`](r2-setup.md). Until this is done, photos
+      only work in local dev.
+- [ ] **Run the "DB push" workflow** on `main` to apply the pending schema
+      columns (Actions → DB push → type `push`).
+- [ ] **Pick a host and deploy** — Vercel is the path of least resistance for
+      Next.js 15. Set `NEXT_PUBLIC_SITE_URL` there or printed QR codes will
+      resolve to the wrong host.
+
+---
+
+## Answered
+
+Nothing yet. Answered questions move here with a pointer to their entry in
+`docs/decisions/`.
