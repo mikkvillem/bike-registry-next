@@ -128,9 +128,36 @@ The loop can't do these — they need your accounts.
 - [x] **Env vars set on Vercel** — done 2026-10-28. Production serves and
       queries the live DB.
 
-- [ ] **Check Google sign-in on production.** Untested. If it fails with
-      `redirect_uri_mismatch`, add the production callback to the authorized
-      redirect URIs in the Google Cloud console, alongside the localhost one.
+- [ ] **Google OAuth: add the production URLs.** Google Cloud console →
+      APIs & Services → Credentials → your OAuth 2.0 Client ID.
+
+      Authorized redirect URIs (keep the localhost one, add the first):
+      ```
+      https://bike-registry-next.vercel.app/api/auth/callback/google
+      http://localhost:3000/api/auth/callback/google
+      ```
+
+      Authorized JavaScript origins:
+      ```
+      https://bike-registry-next.vercel.app
+      http://localhost:3000
+      ```
+
+      The path comes from better-auth mounted at `src/app/api/auth/[...all]`
+      with no custom `basePath`; the production endpoint was confirmed
+      responding (302) on 2026-10-28.
+
+- [ ] **Publish the OAuth consent screen before launch.** While it is in
+      *Testing*, only accounts on the test-user list can sign in, and refresh
+      tokens expire after 7 days. Going to *In production* with the
+      non-sensitive scopes this app uses (email, profile) does not require
+      Google review.
+
+- [ ] **Decide about Vercel preview deployments.** Each PR gets a unique
+      `*.vercel.app` host that will never match the redirect URI list, so
+      Google sign-in is broken on previews by design. Fine if you only use
+      previews to eyeball public pages; if you need signed-in previews, the
+      fix is a stable staging domain.
 
 ---
 
