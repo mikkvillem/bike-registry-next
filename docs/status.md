@@ -1,22 +1,24 @@
 # Project Status
 
-**Last updated:** 2026-10-15 — fix better-auth "Drizzle schema mismatch" (pass auth schema to adapter)
+**Last updated:** 2026-10-28 — async rollout loop set up; production is live and serving at bike-registry-next.vercel.app
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
 check-in: health first, then what's next, then what's waiting on you.
 
+**Working async?** [`rollout.md`](rollout.md) is the critical path to launch
+and [`questions.md`](questions.md) is where the agent parks decisions it
+needs from you — answer there, inline, whenever you have a minute.
+
 ## Health
 
 - [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
       (2026-09-29).
-- [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
-      CORS, token and `R2_*` env vars need setting up — follow
-      [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
-- [ ] **DB schema applied** — ⚠️ the real DB still needs a push after this
-      PR merges: adds `theft.contact_public`, `theft.stolen_on`,
-      `theft.location` (additive, no data loss). Actions → **DB push** → Run
-      workflow on `main`, type `push`. `DATABASE_URL` secret is set.
+- [x] **Photo storage configured** — R2 bucket live, all five `R2_*` vars
+      set **in the local `.env` only**. Not yet set on Vercel.
+- [x] **DB schema applied** — verified 2026-10-28 against the live Neon DB:
+      `theft` has `contact_public`, `stolen_on`, `location`. All seven
+      tables present.
 - [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
       all in untouched files (formatting, import order, `!` non-null assertions
       on env vars, Tailwind `@theme` at-rule in `globals.css`).
@@ -24,6 +26,10 @@ check-in: health first, then what's next, then what's waiting on you.
 - [ ] **Tests** — none.
 - [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
       reaches the DB via `db:push`.
+- [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
+      serves 200 on `/` and `/search`, and the serial lookup queries the live
+      Neon DB without error (verified 2026-10-28). Google sign-in on
+      production is untested — see **Next up**.
 
 **MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
 serial lookup exist; missing a stolen-bikes feed.
@@ -103,29 +109,32 @@ Ordered by priority.
 
 ## Waiting on you (decisions)
 
-- [ ] **Run the "DB push" workflow** once this PR is merged (see Health).
-- [ ] **Theft date/place/details are public once published** — seemed
-      implied by "publish it as stolen"; say if any of it should stay private.
-      (Decision 0003.)
-- [ ] **Product name + domain** — blocks label, public copy, OG cards.
-- [ ] **Show the full serial number publicly on `/b/[id]`?** — helps
-      finders/buyers match the bike; it's a data-visibility call.
-- [ ] **Theft report contact** — direct phone/email, relay via the app, or
-      police only?
-- [ ] **Theft takedown / disputes** — owner marks recovered; what about
-      false reports and contested claims?
-- [ ] **Set up R2** — create bucket, public domain, CORS, API token, env
-      vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
-      me to double-check config.
-- [ ] **Email/notifications** — send any email at all (e.g. "your bike's page
-      was scanned")? Which provider?
-- [ ] **Privacy policy + ToS** — needed before real users (PII + theft
-      claims).
-- [ ] **QR label size/format and branding** (see decision 0002).
+All open decisions now live in [`questions.md`](questions.md), with a
+recommended default for each so the loop can keep moving while you think.
+Answer them inline there. Summary of what's open:
+
+- Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
+  this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
+  Q7 QR label format.
+- Infrastructure is done: R2, DB schema, and a working production deploy.
+  The only remaining by-hand item is the Google OAuth production callback,
+  and only if sign-in turns out to be broken there.
 
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-28 — Production env vars set on Vercel; the deploy now serves
+  `/` and `/search` and queries the live DB. Infra is no longer a blocker.
+
+- 2026-10-28 — Verified live infra: R2 configured and Neon schema already
+  pushed (both Health boxes ticked). Found the Vercel deployment 500s on
+  every route because the env vars live only in the gitignored local `.env`.
+
+- 2026-10-28 — Async rollout setup: `/advance` slash command (one unit of
+  work per run, opens a PR, parks blocked decisions), `docs/rollout.md`
+  (critical path to launch), `docs/questions.md` (answer-inline question
+  inbox). No code changes.
 
 - 2026-10-15 — Fix `BetterAuthError: Drizzle schema mismatch`: `drizzleAdapter` in `src/lib/auth.ts` now gets `schema: authSchema`.
 
