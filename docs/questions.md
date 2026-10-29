@@ -128,7 +128,7 @@ The loop can't do these — they need your accounts.
 - [x] **Env vars set on Vercel** — done 2026-10-28. Production serves and
       queries the live DB.
 
-- [ ] **Google OAuth: add the production URLs.** Google Cloud console →
+- [x] **Google OAuth: production URLs added** — done 2026-10-29 and verified: Google Cloud console →
       APIs & Services → Credentials → your OAuth 2.0 Client ID.
 
       Authorized redirect URIs (keep the localhost one, add the first):
@@ -143,11 +143,15 @@ The loop can't do these — they need your accounts.
       http://localhost:3000
       ```
 
-      The path comes from better-auth mounted at `src/app/api/auth/[...all]`
-      with no custom `basePath`; the production endpoint was confirmed
-      responding (302) on 2026-10-28.
+      Verified end to end without signing in: production's
+      `/api/auth/sign-in/social` hands back an authorization URL whose
+      `redirect_uri` is exactly the production callback above, and following
+      that URL redirects to Google's sign-in page rather than an
+      `Error 400: redirect_uri_mismatch` page. The URI is accepted.
 
-- [ ] **Publish the OAuth consent screen before launch.** While it is in
+- [ ] **Publish the OAuth consent screen before launch.** Still unverified —
+      this one only shows itself *after* a successful login, so the checks
+      above cannot see it. While it is in
       *Testing*, only accounts on the test-user list can sign in, and refresh
       tokens expire after 7 days. Going to *In production* with the
       non-sensitive scopes this app uses (email, profile) does not require
