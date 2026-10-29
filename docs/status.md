@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-28 — async rollout loop set up; production is live and serving at bike-registry-next.vercel.app
+**Last updated:** 2026-10-29 — production live and Google OAuth verified; infra fully unblocked
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -28,8 +28,9 @@ needs from you — answer there, inline, whenever you have a minute.
       reaches the DB via `db:push`.
 - [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
       serves 200 on `/` and `/search`, and the serial lookup queries the live
-      Neon DB without error (verified 2026-10-28). Google sign-in on
-      production is untested — see **Next up**.
+      Neon DB without error (verified 2026-10-28). Google OAuth redirect URI
+      verified accepted by Google 2026-10-29; an actual signed-in round trip
+      is still untested.
 
 **MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
 serial lookup exist; missing a stolen-bikes feed.
@@ -123,6 +124,9 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-29 — Google OAuth production URLs added and verified: the
+  authorization URL carries the right `redirect_uri` and Google accepts it.
 
 - 2026-10-28 — Production env vars set on Vercel; the deploy now serves
   `/` and `/search` and queries the live DB. Infra is no longer a blocker.
