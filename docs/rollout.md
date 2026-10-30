@@ -50,9 +50,10 @@ This is the product. Most of the remaining value is in these four items.
 - [x] **i18n setup, ET first and EN second.** `src/lib/i18n.ts` +
       `src/lib/dictionaries/`, locale from a cookie then `Accept-Language`,
       ET default, ET/EN switcher in the header. URL-vs-cookie is Q8.
-- [ ] **Translate the public surface.** Done: header nav, 404, `/stolen`.
-      Left: `/b/[id]`, `/search`, the sign-in/out buttons. Owner-side
-      screens can stay English at launch.
+- [x] **Translate the public surface.** Header nav, 404, `/stolen`,
+      `/b/[id]`, `/search` and the auth buttons. The landing page is left in
+      English on purpose — its copy still sells the old product, see Q9.
+      Owner-side screens stay English at launch.
 
 ## Stage 4 — Legal and launch
 

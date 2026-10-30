@@ -1,7 +1,7 @@
 # Project Status
 
-**Last updated:** 2026-10-30 — #12 merged and live; i18n scaffolded with
-Estonian as the default locale
+**Last updated:** 2026-10-30 — #12 merged and live; the public surface is
+translated, Estonian by default
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -116,10 +116,12 @@ Ordered by priority.
       missing today).
 - [ ] **Stolen-state treatment** — strong visual + an "I've seen this bike"
       action (who it contacts is a decision for you, see below).
-- [ ] **Estonian UI** — i18n is scaffolded (ET default, EN second, cookie +
-      `Accept-Language`). Translated: header nav, 404, `/stolen`. Left:
-      `/b/[id]`, `/search`, auth buttons. The Estonian wording is an agent
-      first pass and wants a native read-through.
+- [ ] **Estonian UI** — the whole public surface is translated (ET default,
+      EN second, cookie + `Accept-Language`): nav, 404, `/stolen`,
+      `/b/[id]`, `/search`, auth buttons. The landing page is deliberately
+      still English — its copy sells the old product, see Q9. The Estonian
+      wording throughout is an agent first pass and wants a native
+      read-through.
 - [ ] **Add-bike form** — shorter, serial first with a "where to find it"
       hint (under the bottom bracket), optional specs collapsed.
 - [ ] **QR label** — placeholder design; waiting on size/format + branding.
@@ -141,6 +143,11 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-30 — Public surface translated: `/b/[id]`, `/search` and the auth
+  buttons now read from the dictionaries, including the bike type, gender and
+  gear-system enums. `/search` split into a server page + client form so the
+  locale reaches it. Landing-page copy left in English as Q9.
 
 - 2026-10-30 — i18n scaffolding: `src/lib/i18n.ts` resolves the locale from a
   cookie then `Accept-Language` (ET default, decision 0001), dictionaries in
