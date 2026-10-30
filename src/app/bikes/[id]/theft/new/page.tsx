@@ -2,6 +2,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { reportTheft } from "@/app/bikes/[id]/theft/actions";
+import { TheftForm } from "@/app/bikes/[id]/theft/new/theft-form";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
 import { getSession } from "@/lib/session";
@@ -53,9 +54,10 @@ export default async function ReportTheftPage({
         {bike.make} {bike.model} &middot; serial {bike.serialNumber}
       </p>
 
-      <form
+      <TheftForm
         action={reportTheft.bind(null, bike.id)}
-        className="mt-6 flex flex-col gap-4"
+        submitLabel="Report stolen"
+        pendingLabel="Reporting…"
       >
         <label className="flex flex-col gap-1 text-sm">
           Date stolen
@@ -117,14 +119,7 @@ export default async function ReportTheftPage({
             marked as stolen, with the date, place, and details above.
           </span>
         </label>
-
-        <button
-          type="submit"
-          className="mt-2 rounded bg-red-700 px-4 py-2 text-sm text-white"
-        >
-          Report stolen
-        </button>
-      </form>
+      </TheftForm>
     </main>
   );
 }

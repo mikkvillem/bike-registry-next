@@ -1,7 +1,7 @@
 # Project Status
 
-**Last updated:** 2026-10-30 — #12 merged and live; i18n scaffolded with
-Estonian as the default locale
+**Last updated:** 2026-10-30 — #15 merged (inline theft-form errors); i18n
+scaffolded with Estonian as the default locale
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -24,8 +24,8 @@ needs from you — answer there, inline, whenever you have a minute.
       build on PRs and `main`. ⚠️ Consider making it a required check in
       branch protection.
 - [x] **Tests** — `npm test` (vitest + in-memory Postgres via PGlite, applied
-      from the committed migration): serial uniqueness and theft rules. No
-      UI/server-action tests yet.
+      from the committed migration): serial uniqueness, theft rules, and
+      theft-date validation. No UI/server-action tests yet.
 - [x] **DB migrations committed** — `src/db/migrations/0000_*.sql`, used by
       the tests. ⚠️ The real DB is still managed with `db:push`; don't run
       `db:migrate` against it (tables already exist). Regenerate with
@@ -105,8 +105,9 @@ Ordered by priority.
 10. [x] ~~**Polish basics**~~ — done 2026-10-17: 404 page, title template,
         OpenGraph/Twitter cards on `/b/[id]` ("STOLEN: make model" + first
         photo). Set `NEXT_PUBLIC_SITE_URL` in production so card URLs resolve.
-11. [ ] **Theft-report form errors** — `reportTheft` validation errors
-        (date etc.) are thrown, so production shows a generic message.
+11. [x] ~~**Theft-report form errors**~~ — done 2026-10-30: `reportTheft`
+        returns `{ error }` and `TheftForm` shows it inline; the date rules
+        moved to `src/lib/theft-date.ts` with unit tests.
 
 ## Design to hone
 
@@ -147,6 +148,10 @@ Newest first. One line per merged change.
   `src/lib/dictionaries/`, ET/EN switcher in the header, and the product name
   behind `PRODUCT_NAME` (`src/lib/brand.ts`) for Q1. Header nav, 404 and
   `/stolen` translated; URL-vs-cookie parked as Q8.
+
+- 2026-10-30 — Theft-report form errors show inline: `reportTheft` returns
+  `{ error }` instead of throwing, a new `TheftForm` client wrapper renders
+  it, and the date rules moved to `src/lib/theft-date.ts` with 11 unit tests.
 
 - 2026-10-30 — Refreshed this branch onto `main` (docs conflict only) so it
   can be merged; no code changes since 2026-10-18. Also diagnosed the failing
