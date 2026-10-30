@@ -1,6 +1,8 @@
 # Project Status
 
-**Last updated:** 2026-10-29 — production live and Google OAuth verified; infra fully unblocked
+**Last updated:** 2026-10-30 — refreshed this branch onto `main`: infra is
+live (R2, DB, production deploy, Google OAuth), and this branch adds the
+stolen feed, CI, tests, migrations and inline form errors
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -12,28 +14,37 @@ needs from you — answer there, inline, whenever you have a minute.
 
 ## Health
 
-- [x] **Builds** — `tsc` + `next build` pass on the R2 photo branch
-      (2026-09-29).
+- [x] **Builds** — `tsc` + `next build` pass (2026-10-17).
 - [x] **Photo storage configured** — R2 bucket live, all five `R2_*` vars
-      set **in the local `.env` only**. Not yet set on Vercel.
+      set locally and on Vercel.
 - [x] **DB schema applied** — verified 2026-10-28 against the live Neon DB:
       `theft` has `contact_public`, `stolen_on`, `location`. All seven
       tables present.
-- [ ] **Lint clean** (`npm run lint`) — ❌ 13 errors from before this PR,
-      all in untouched files (formatting, import order, `!` non-null assertions
-      on env vars, Tailwind `@theme` at-rule in `globals.css`).
-- [ ] **CI** — none. Nothing checks typecheck/lint/build on PRs.
-- [ ] **Tests** — none.
-- [ ] **DB migrations committed** — ❌ removed in `3aa58c7`; schema only
-      reaches the DB via `db:push`.
+- [x] **Lint clean** (`npm run lint`) — 0 errors (2026-10-17).
+- [x] **CI** — `.github/workflows/ci.yml` runs lint, typecheck, tests and
+      build on PRs and `main`. ⚠️ Consider making it a required check in
+      branch protection.
+- [x] **Tests** — `npm test` (vitest + in-memory Postgres via PGlite, applied
+      from the committed migration): serial uniqueness and theft rules. No
+      UI/server-action tests yet.
+- [x] **DB migrations committed** — `src/db/migrations/0000_*.sql`, used by
+      the tests. ⚠️ The real DB is still managed with `db:push`; don't run
+      `db:migrate` against it (tables already exist). Regenerate with
+      `npm run db:generate` whenever the schema changes.
+- [ ] **Preview deploys work** — ❌ the Vercel check on PR #12 fails at
+      build: the env vars are scoped to Production only, and since `requireEnv`
+      landed a missing var fails `next build` outright. Production itself is
+      unaffected. See [`questions.md`](questions.md).
 - [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
       serves 200 on `/` and `/search`, and the serial lookup queries the live
       Neon DB without error (verified 2026-10-28). Google OAuth redirect URI
       verified accepted by Google 2026-10-29; an actual signed-in round trip
       is still untested.
 
-**MVP readiness:** ~80%. Registration, QR label, theft reporting, and public
-serial lookup exist; missing a stolen-bikes feed.
+**MVP readiness:** all four scope items plus the public stolen feed are
+built, and infra is live. Remaining blockers are your decisions
+(privacy/ToS, product name) and the public-surface design work in
+[`rollout.md`](rollout.md) stages 2–3.
 
 ## MVP scope progress
 
@@ -77,22 +88,26 @@ Ordered by priority.
        open report; confirm step before "Mark recovered"/"Withdraw" (one click
        today).
 3. [x] ~~**Public serial-number lookup**~~ — done 2026-10-05.
-4. [ ] **Public stolen-bikes feed** — recent-first list of published thefts.
+4. [x] ~~**Public stolen-bikes feed**~~ — done 2026-10-17 (`/stolen`, latest
+       50; no pagination or location filter yet).
 5. [x] ~~**Edit / delete bike**~~ — done 2026-10-07. Follow-up: edit
        re-checks uniqueness only via the DB index (raw error shown on clash
        until item 6).
-6. [ ] **Form error handling** — duplicate serial etc. shown inline
-       (`useActionState`) instead of a raw thrown error.
-7. [ ] **Regenerate + commit DB migrations.**
-8. [ ] **CI** (typecheck, lint, build) and a few tests (uniqueness,
-       theft status transitions). Fix the old lint errors first so CI can
-       start green.
+6. [x] ~~**Form error handling**~~ — done 2026-10-17 for add/edit bike
+       (actions return `{ error }`; thrown messages are hidden in
+       production). Theft-report actions still throw — same fix needed.
+7. [x] ~~**Commit DB migrations**~~ — done 2026-10-17 (see Health).
+8. [x] ~~**CI + tests**~~ — done 2026-10-17. Follow-up: tests for server
+       actions / UI.
 9. [ ] **Photo follow-ups** — clean up orphaned R2 uploads from abandoned
        forms; reorder photos / pick the cover photo; HEIC picked on desktop
        Chrome/Firefox is rejected (can't decode) — add a WASM HEIC decoder if
        that turns out to matter.
-10. [ ] **Polish basics** — 404 page, page metadata, OpenGraph cards on
-        `/b/[id]` so shared stolen-bike links preview well.
+10. [x] ~~**Polish basics**~~ — done 2026-10-17: 404 page, title template,
+        OpenGraph/Twitter cards on `/b/[id]` ("STOLEN: make model" + first
+        photo). Set `NEXT_PUBLIC_SITE_URL` in production so card URLs resolve.
+11. [ ] **Theft-report form errors** — `reportTheft` validation errors
+        (date etc.) are thrown, so production shows a generic message.
 
 ## Design to hone
 
@@ -117,13 +132,27 @@ Answer them inline there. Summary of what's open:
 - Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
   this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
   Q7 QR label format.
-- Infrastructure is done: R2, DB schema, and a working production deploy.
-  The only remaining by-hand item is the Google OAuth production callback,
-  and only if sign-in turns out to be broken there.
+- Infrastructure is done: R2, DB schema, a working production deploy, and
+  Google OAuth redirect URIs verified. Two by-hand items are left, both in
+  [`questions.md`](questions.md): publish the OAuth consent screen before
+  launch, and decide whether signed-in Vercel previews matter.
 
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-30 — Refreshed this branch onto `main` (docs conflict only) so it
+  can be merged; no code changes since 2026-10-18. Also diagnosed the failing
+  Vercel check: `requireEnv` makes `next build` fail when an env var is
+  missing, and the Vercel vars are not scoped to Preview — see
+  [`questions.md`](questions.md).
+
+- 2026-10-18 — Regenerated `pnpm-lock.yaml` for the new dev deps (vitest, PGlite); fixes `ERR_PNPM_OUTDATED_LOCKFILE` on deploy. Both `package-lock.json` and `pnpm-lock.yaml` are committed — keep them in sync or drop one.
+
+- 2026-10-17 — Public stolen-bikes feed (`/stolen`) + nav links; add/edit
+  bike actions return inline errors; lint fixed (`requireEnv` helper, Biome
+  CSS override) and CI added; vitest + PGlite tests; first migration
+  committed; `not-found` page, title template, OG/Twitter cards on `/b/[id]`.
 
 - 2026-10-29 — Google OAuth production URLs added and verified: the
   authorization URL carries the right `redirect_uri` and Google accepts it.

@@ -18,14 +18,17 @@ a valid rollout.
 
 Nothing here needs a decision from you. This is the loop's first work.
 
-- [ ] **Fix the 13 existing lint errors** so CI can start green.
-- [ ] **CI workflow** — typecheck, lint, build on every PR.
-- [ ] **Regenerate and commit DB migrations.** Schema currently only reaches
-      the DB via `db:push`, which is not a deploy story.
-- [ ] **Form error handling** — duplicate serial and friends shown inline via
-      `useActionState`, not as a raw thrown error page.
-- [ ] **A few tests** — serial uniqueness, theft status transitions. These
-      two are where a bug costs trust.
+- [x] **Fix the 13 existing lint errors** so CI can start green.
+- [x] **CI workflow** — typecheck, lint, build on every PR. ⚠️ Not a
+      required check in branch protection yet.
+- [x] **Regenerate and commit DB migrations.** `src/db/migrations/0000_*.sql`
+      is committed and the tests apply it. ⚠️ The live DB is still managed
+      with `db:push`; moving it to `db:migrate` is a follow-up.
+- [x] **Form error handling** — add/edit bike return `{ error }` and show it
+      inline. ⚠️ Follow-up: the theft-report actions still throw, so those
+      validation errors show a generic message in production.
+- [x] **A few tests** — vitest + PGlite cover serial uniqueness and theft
+      status transitions.
 
 ## Stage 2 — Make the public surface good
 
@@ -36,11 +39,11 @@ This is the product. Most of the remaining value is in these four items.
       from the page today). Bring into the framed design system.
 - [ ] **Stolen-state treatment** — strong visual plus the "I've seen this
       bike" action. Behind Q3.
-- [ ] **Public stolen-bikes feed** — recent-first list of published thefts.
-      The shareable surface; this is what gets linked in Facebook groups.
-- [ ] **404 page, page metadata, OpenGraph cards on `/b/[id]`** so a shared
-      stolen-bike link previews with the bike's photo. Behind Q1 for the
-      name.
+- [x] **Public stolen-bikes feed** — `/stolen`, latest 50 published thefts,
+      recent-first. ⚠️ No pagination or location filter yet.
+- [x] **404 page, page metadata, OpenGraph cards on `/b/[id]`** so a shared
+      stolen-bike link previews with the bike's photo. Uses the placeholder
+      name per Q1; renaming is a one-file change.
 
 ## Stage 3 — Make it Estonian
 

@@ -2,7 +2,7 @@
 
 import { unstable_rethrow } from "next/navigation";
 import { type ReactNode, useState } from "react";
-import { createBike } from "@/app/bikes/actions";
+import { type BikeActionResult, createBike } from "@/app/bikes/actions";
 import { takePickedFiles, uploadPhotos } from "@/lib/photo-upload";
 
 // Wraps the add-bike form: photos are converted to WebP in the browser, then
@@ -15,7 +15,7 @@ export function BikeForm({
   submitLabel = "Save bike",
 }: {
   children: ReactNode;
-  action?: (formData: FormData) => Promise<void>;
+  action?: (formData: FormData) => Promise<BikeActionResult>;
   withPhotos?: boolean;
   submitLabel?: string;
 }) {
@@ -32,7 +32,11 @@ export function BikeForm({
       }
 
       setStatus("Saving…");
-      await action(formData);
+      const result = await action(formData);
+      if (result?.error) {
+        setStatus(null);
+        setError(result.error);
+      }
     } catch (e) {
       unstable_rethrow(e); // let Next handle redirect() from the action
       setStatus(null);

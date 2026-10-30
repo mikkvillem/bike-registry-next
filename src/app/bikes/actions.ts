@@ -102,44 +102,51 @@ export async function requestImageUploads(
   return { mode: "r2", uploads };
 }
 
+/**
+ * Create/update return `{ error }` for expected failures instead of throwing:
+ * Next hides thrown server-action messages in production, so the form could
+ * never show them.
+ */
+export type BikeActionResult = { error: string } | undefined;
+
+const DUPLICATE_ERROR =
+  "A bike with this make, model, and serial number is already registered.";
+
 function parseBikeFields(formData: FormData) {
   const make = (formData.get("make") as string)?.trim();
   const serialNumber = (formData.get("serialNumber") as string)?.trim();
   if (!make || !serialNumber) {
-    throw new Error("Make and serial number are required.");
+    return { error: "Make and serial number are required." as string };
   }
   const weightRaw = formData.get("weight");
   const numGearsRaw = formData.get("numGears");
   return {
-    make,
-    model: (formData.get("model") as string)?.trim() || null,
-    serialNumber,
-    type: asEnumValue(bicycleTypeEnum.enumValues, formData.get("type")),
-    gender: asEnumValue(bicycleGenderEnum.enumValues, formData.get("gender")),
-    gearSystem: asEnumValue(
-      bicycleGearSystemEnum.enumValues,
-      formData.get("gearSystem"),
-    ),
-    wheelSize: (formData.get("wheelSize") as string) || null,
-    weight: weightRaw ? Number(weightRaw) : null,
-    numGears: numGearsRaw ? Number(numGearsRaw) : null,
-    description: (formData.get("description") as string) || null,
+    fields: {
+      make,
+      model: (formData.get("model") as string)?.trim() || null,
+      serialNumber,
+      type: asEnumValue(bicycleTypeEnum.enumValues, formData.get("type")),
+      gender: asEnumValue(bicycleGenderEnum.enumValues, formData.get("gender")),
+      gearSystem: asEnumValue(
+        bicycleGearSystemEnum.enumValues,
+        formData.get("gearSystem"),
+      ),
+      wheelSize: (formData.get("wheelSize") as string) || null,
+      weight: weightRaw ? Number(weightRaw) : null,
+      numGears: numGearsRaw ? Number(numGearsRaw) : null,
+      description: (formData.get("description") as string) || null,
+    },
   };
 }
 
-function friendlyDuplicateError(error: unknown) {
-  if (
+function isDuplicateError(error: unknown) {
+  return (
     error instanceof Error &&
     // The driver may wrap the pg error, so check the cause chain too.
     [error.message, String((error as { cause?: unknown }).cause)].some((m) =>
       m.includes("bicycle_serial_make_model_idx"),
     )
-  ) {
-    return new Error(
-      "A bike with this make, model, and serial number is already registered.",
-    );
-  }
-  return error;
+  );
 }
 
 async function requireOwnedBike(bikeId: string) {
@@ -160,13 +167,18 @@ async function requireOwnedBike(bikeId: string) {
 }
 
 /** Edits specs/identity only; photos are managed on the bike page. */
-export async function updateBike(bikeId: string, formData: FormData) {
+export async function updateBike(
+  bikeId: string,
+  formData: FormData,
+): Promise<BikeActionResult> {
   await requireOwnedBike(bikeId);
-  const fields = parseBikeFields(formData);
+  const parsed = parseBikeFields(formData);
+  if (parsed.error !== undefined) return { error: parsed.error };
   try {
-    await db.update(bicycle).set(fields).where(eq(bicycle.id, bikeId));
+    await db.update(bicycle).set(parsed.fields).where(eq(bicycle.id, bikeId));
   } catch (error) {
-    throw friendlyDuplicateError(error);
+    if (isDuplicateError(error)) return { error: DUPLICATE_ERROR };
+    throw error;
   }
   revalidatePath("/dashboard");
   redirect(`/bikes/${bikeId}`);
@@ -194,11 +206,14 @@ export async function deleteBike(bikeId: string) {
   redirect("/dashboard");
 }
 
-export async function createBike(formData: FormData) {
+export async function createBike(
+  formData: FormData,
+): Promise<BikeActionResult> {
   const session = await getSession();
   if (!session) redirect("/");
 
-  const fields = parseBikeFields(formData);
+  const parsed = parseBikeFields(formData);
+  if (parsed.error !== undefined) return { error: parsed.error };
 
   const bikeId = crypto.randomUUID();
   const imageUrls = await photoUrlsFromForm(session.user.id, bikeId, formData);
@@ -207,11 +222,12 @@ export async function createBike(formData: FormData) {
     await db.insert(bicycle).values({
       id: bikeId,
       userId: session.user.id,
-      ...fields,
+      ...parsed.fields,
       imageUrls: imageUrls.length > 0 ? imageUrls : null,
     });
   } catch (error) {
-    throw friendlyDuplicateError(error);
+    if (isDuplicateError(error)) return { error: DUPLICATE_ERROR };
+    throw error;
   }
 
   redirect(`/bikes/${bikeId}`);

@@ -1,17 +1,17 @@
+import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
+  check,
+  date,
+  integer,
+  numeric,
+  pgEnum,
   pgTable,
   text,
-  integer,
   timestamp,
-  date,
-  pgEnum,
-  varchar,
-  boolean,
-  numeric,
-  check,
   uniqueIndex,
+  varchar,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
 import { user } from "./auth-schema";
 
 export const bicycleTypeEnum = pgEnum("type", [

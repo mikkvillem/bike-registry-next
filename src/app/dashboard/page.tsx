@@ -1,18 +1,18 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { and, desc, eq, isNull } from "drizzle-orm";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   BikeIllustration,
   CornerMarks,
   HorizontalDivider,
-} from '@/components/framing';
-import { db } from '@/db';
-import { bicycle, theft } from '@/db/schema/schema';
-import { getSession } from '@/lib/session';
+} from "@/components/framing";
+import { db } from "@/db";
+import { bicycle, theft } from "@/db/schema/schema";
+import { getSession } from "@/lib/session";
 
 export default async function DashboardPage() {
   const session = await getSession();
-  if (!session) redirect('/');
+  if (!session) redirect("/");
 
   const bikes = await db
     .select()
@@ -29,7 +29,7 @@ export default async function DashboardPage() {
         .where(
           and(
             eq(bicycle.userId, session.user.id),
-            eq(theft.status, 'active'),
+            eq(theft.status, "active"),
             isNull(theft.deletedAt),
           ),
         )
@@ -49,7 +49,8 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/bikes/new"
-          className="rounded bg-foreground px-4 py-2 text-sm whitespace-nowrap text-background">
+          className="rounded bg-foreground px-4 py-2 text-sm whitespace-nowrap text-background"
+        >
           Add bike
         </Link>
       </div>
@@ -70,11 +71,13 @@ export default async function DashboardPage() {
                 <li
                   key={bike.id}
                   className={`border-dotted border-black/15 dark:border-white/15 ${
-                    isRightColumn ? 'sm:border-l' : ''
-                  } ${isFirstRow ? '' : 'sm:border-t'}`}>
+                    isRightColumn ? "sm:border-l" : ""
+                  } ${isFirstRow ? "" : "sm:border-t"}`}
+                >
                   <Link
                     href={`/bikes/${bike.id}`}
-                    className="block hover:bg-black/3 sm:p-6 dark:hover:bg-white/3">
+                    className="block hover:bg-black/3 sm:p-6 dark:hover:bg-white/3"
+                  >
                     {bike.imageUrls?.[0] ? (
                       // biome-ignore lint/performance/noImgElement: user uploads (R2 or local), not optimized via next/image
                       <img
@@ -89,7 +92,7 @@ export default async function DashboardPage() {
                     )}
                     <p className="text-xs font-semibold tracking-[0.15em] uppercase">
                       <span className="opacity-50">
-                        {bike.gender ?? 'Bike'}
+                        {bike.gender ?? "Bike"}
                       </span>
                       {stolenBikeIds.has(bike.id) && (
                         <span className="ml-2 rounded bg-red-700 px-1.5 py-0.5 text-white">
@@ -103,7 +106,7 @@ export default async function DashboardPage() {
                     <p className="text-sm opacity-70">
                       {bike.wheelSize
                         ? `${bike.wheelSize} wheels`
-                        : 'No details yet'}
+                        : "No details yet"}
                     </p>
                   </Link>
                 </li>
