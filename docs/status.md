@@ -31,6 +31,10 @@ needs from you — answer there, inline, whenever you have a minute.
       the tests. ⚠️ The real DB is still managed with `db:push`; don't run
       `db:migrate` against it (tables already exist). Regenerate with
       `npm run db:generate` whenever the schema changes.
+- [ ] **Preview deploys work** — ❌ the Vercel check on PR #12 fails at
+      build: the env vars are scoped to Production only, and since `requireEnv`
+      landed a missing var fails `next build` outright. Production itself is
+      unaffected. See [`questions.md`](questions.md).
 - [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
       serves 200 on `/` and `/search`, and the serial lookup queries the live
       Neon DB without error (verified 2026-10-28). Google OAuth redirect URI
@@ -138,7 +142,10 @@ Answer them inline there. Summary of what's open:
 Newest first. One line per merged change.
 
 - 2026-10-30 — Refreshed this branch onto `main` (docs conflict only) so it
-  can be merged; no code changes since 2026-10-18.
+  can be merged; no code changes since 2026-10-18. Also diagnosed the failing
+  Vercel check: `requireEnv` makes `next build` fail when an env var is
+  missing, and the Vercel vars are not scoped to Preview — see
+  [`questions.md`](questions.md).
 
 - 2026-10-18 — Regenerated `pnpm-lock.yaml` for the new dev deps (vitest, PGlite); fixes `ERR_PNPM_OUTDATED_LOCKFILE` on deploy. Both `package-lock.json` and `pnpm-lock.yaml` are committed — keep them in sync or drop one.
 

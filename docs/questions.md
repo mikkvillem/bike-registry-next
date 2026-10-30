@@ -157,6 +157,22 @@ The loop can't do these — they need your accounts.
       non-sensitive scopes this app uses (email, profile) does not require
       Google review.
 
+- [ ] **Scope the env vars to Preview, not just Production.** Found
+      2026-10-30: the Vercel check on PR #12 fails at build, not at runtime.
+      Since that PR, `DATABASE_URL`, `GOOGLE_CLIENT_ID`,
+      `GOOGLE_CLIENT_SECRET` and `BETTER_AUTH_SECRET` are read through
+      `requireEnv` (`src/lib/env.ts`), which throws when one is missing —
+      and `next build` evaluates those modules while collecting page data,
+      so a missing variable fails the build outright. Reproduced locally:
+      building with the four vars blanked dies with
+      `Error: DATABASE_URL is not set`. CI passes only because
+      `.github/workflows/ci.yml` injects placeholder values.
+
+      Fix: Vercel → Settings → Environment Variables, tick **Preview** (and
+      Development, for convenience) on those four. A preview needs
+      `DATABASE_URL` at runtime anyway, so there is no code change that
+      makes previews genuinely work without it.
+
 - [ ] **Decide about Vercel preview deployments.** Each PR gets a unique
       `*.vercel.app` host that will never match the redirect URI list, so
       Google sign-in is broken on previews by design. Fine if you only use
