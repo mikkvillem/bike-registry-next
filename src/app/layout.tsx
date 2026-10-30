@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { SignOutButton } from "@/app/auth-buttons";
+import { LocaleSwitcher } from "@/app/locale-switcher";
+import { PRODUCT_NAME } from "@/lib/brand";
+import { getT } from "@/lib/locale-server";
 import { getSession } from "@/lib/session";
 import "./globals.css";
 
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
-  title: { default: "Bike Registry", template: "%s — Bike Registry" },
+  title: { default: PRODUCT_NAME, template: `%s — ${PRODUCT_NAME}` },
   description: "Keep track of our bikes",
 };
 
@@ -28,28 +31,29 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
+  const [session, { locale, t }] = await Promise.all([getSession(), getT()]);
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <header className="flex items-center justify-between border-b border-black/10 p-4 dark:border-white/10">
           <Link href="/" className="font-semibold">
-            Bike Registry
+            {PRODUCT_NAME}
           </Link>
           <nav className="flex items-center gap-4">
             <Link href="/search" className="text-sm hover:underline">
-              Check a bike
+              {t.nav.checkBike}
             </Link>
             <Link href="/stolen" className="text-sm hover:underline">
-              Stolen bikes
+              {t.nav.stolenBikes}
             </Link>
+            <LocaleSwitcher locale={locale} />
             {session && (
               <>
                 <Link href="/dashboard" className="text-sm hover:underline">
-                  Dashboard
+                  {t.nav.dashboard}
                 </Link>
                 <SignOutButton />
               </>

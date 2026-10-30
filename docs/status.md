@@ -1,8 +1,7 @@
 # Project Status
 
-**Last updated:** 2026-10-30 — refreshed this branch onto `main`: infra is
-live (R2, DB, production deploy, Google OAuth), and this branch adds the
-stolen feed, CI, tests, migrations and inline form errors
+**Last updated:** 2026-10-30 — #15 merged (inline theft-form errors); i18n
+scaffolded with Estonian as the default locale
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -118,8 +117,10 @@ Ordered by priority.
       missing today).
 - [ ] **Stolen-state treatment** — strong visual + an "I've seen this bike"
       action (who it contacts is a decision for you, see below).
-- [ ] **Estonian UI** — all copy is hardcoded English; set up i18n (ET
-      first, EN second) while it's cheap.
+- [ ] **Estonian UI** — i18n is scaffolded (ET default, EN second, cookie +
+      `Accept-Language`). Translated: header nav, 404, `/stolen`. Left:
+      `/b/[id]`, `/search`, auth buttons. The Estonian wording is an agent
+      first pass and wants a native read-through.
 - [ ] **Add-bike form** — shorter, serial first with a "where to find it"
       hint (under the bottom bracket), optional specs collapsed.
 - [ ] **QR label** — placeholder design; waiting on size/format + branding.
@@ -141,6 +142,12 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-30 — i18n scaffolding: `src/lib/i18n.ts` resolves the locale from a
+  cookie then `Accept-Language` (ET default, decision 0001), dictionaries in
+  `src/lib/dictionaries/`, ET/EN switcher in the header, and the product name
+  behind `PRODUCT_NAME` (`src/lib/brand.ts`) for Q1. Header nav, 404 and
+  `/stolen` translated; URL-vs-cookie parked as Q8.
 
 - 2026-10-30 — Theft-report form errors show inline: `reportTheft` returns
   `{ error }` instead of throwing, a new `TheftForm` client wrapper renders
