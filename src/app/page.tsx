@@ -6,11 +6,14 @@ import {
   HorizontalDivider,
   VerticalDivider,
 } from "@/components/framing";
+import { getLocale } from "@/lib/locale-server";
 import { getSession } from "@/lib/session";
 
 export default async function Home() {
   const session = await getSession();
   if (session) redirect("/dashboard");
+
+  const locale = await getLocale();
 
   return (
     <main className="relative mx-3 my-3 border border-black/10 sm:mx-4 sm:my-4 dark:border-white/10">
@@ -29,7 +32,7 @@ export default async function Home() {
             organized in one place. Built in-house, no spreadsheets required.
           </p>
           <div>
-            <SignInButton />
+            <SignInButton locale={locale} />
           </div>
         </div>
 
