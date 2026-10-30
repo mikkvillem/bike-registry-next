@@ -1,8 +1,7 @@
 # Project Status
 
-**Last updated:** 2026-10-30 — refreshed this branch onto `main`: infra is
-live (R2, DB, production deploy, Google OAuth), and this branch adds the
-stolen feed, CI, tests, migrations and inline form errors
+**Last updated:** 2026-10-30 — the stolen feed, CI, tests and migrations
+are merged and live; `/privacy` and `/terms` stubbed
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -140,6 +139,10 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-30 — `/privacy` and `/terms` routes added as clearly-marked
+  placeholders (`noindex`, nothing links to them), so the real text from Q5
+  can slot in. No legal copy written.
 
 - 2026-10-30 — Refreshed this branch onto `main` (docs conflict only) so it
   can be merged; no code changes since 2026-10-18. Also diagnosed the failing
