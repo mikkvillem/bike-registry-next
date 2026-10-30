@@ -1,21 +1,25 @@
 # Project Status
 
-**Last updated:** 2026-10-18 — fix outdated pnpm lockfile (after 2026-10-17: stolen feed, CI, tests, migrations)
+**Last updated:** 2026-10-30 — refreshed this branch onto `main`: infra is
+live (R2, DB, production deploy, Google OAuth), and this branch adds the
+stolen feed, CI, tests, migrations and inline form errors
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
 check-in: health first, then what's next, then what's waiting on you.
 
+**Working async?** [`rollout.md`](rollout.md) is the critical path to launch
+and [`questions.md`](questions.md) is where the agent parks decisions it
+needs from you — answer there, inline, whenever you have a minute.
+
 ## Health
 
 - [x] **Builds** — `tsc` + `next build` pass (2026-10-17).
-- [ ] **Photo storage configured** — ⚠️ R2 code is in, but the bucket,
-      CORS, token and `R2_*` env vars need setting up — follow
-      [`r2-setup.md`](r2-setup.md). Until then photos go to local disk.
-- [ ] **DB schema applied** — ⚠️ the real DB still needs a push after this
-      PR merges: adds `theft.contact_public`, `theft.stolen_on`,
-      `theft.location` (additive, no data loss). Actions → **DB push** → Run
-      workflow on `main`, type `push`. `DATABASE_URL` secret is set.
+- [x] **Photo storage configured** — R2 bucket live, all five `R2_*` vars
+      set locally and on Vercel.
+- [x] **DB schema applied** — verified 2026-10-28 against the live Neon DB:
+      `theft` has `contact_public`, `stolen_on`, `location`. All seven
+      tables present.
 - [x] **Lint clean** (`npm run lint`) — 0 errors (2026-10-17).
 - [x] **CI** — `.github/workflows/ci.yml` runs lint, typecheck, tests and
       build on PRs and `main`. ⚠️ Consider making it a required check in
@@ -27,10 +31,16 @@ check-in: health first, then what's next, then what's waiting on you.
       the tests. ⚠️ The real DB is still managed with `db:push`; don't run
       `db:migrate` against it (tables already exist). Regenerate with
       `npm run db:generate` whenever the schema changes.
+- [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
+      serves 200 on `/` and `/search`, and the serial lookup queries the live
+      Neon DB without error (verified 2026-10-28). Google OAuth redirect URI
+      verified accepted by Google 2026-10-29; an actual signed-in round trip
+      is still untested.
 
 **MVP readiness:** all four scope items plus the public stolen feed are
-built. Remaining blockers are your setup/decisions (R2, DB push, privacy/ToS,
-name).
+built, and infra is live. Remaining blockers are your decisions
+(privacy/ToS, product name) and the public-surface design work in
+[`rollout.md`](rollout.md) stages 2–3.
 
 ## MVP scope progress
 
@@ -111,29 +121,24 @@ Ordered by priority.
 
 ## Waiting on you (decisions)
 
-- [ ] **Run the "DB push" workflow** once this PR is merged (see Health).
-- [ ] **Theft date/place/details are public once published** — seemed
-      implied by "publish it as stolen"; say if any of it should stay private.
-      (Decision 0003.)
-- [ ] **Product name + domain** — blocks label, public copy, OG cards.
-- [ ] **Show the full serial number publicly on `/b/[id]`?** — helps
-      finders/buyers match the bike; it's a data-visibility call.
-- [ ] **Theft report contact** — direct phone/email, relay via the app, or
-      police only?
-- [ ] **Theft takedown / disputes** — owner marks recovered; what about
-      false reports and contested claims?
-- [ ] **Set up R2** — create bucket, public domain, CORS, API token, env
-      vars ([`r2-setup.md`](r2-setup.md)). Send me the public URL if you want
-      me to double-check config.
-- [ ] **Email/notifications** — send any email at all (e.g. "your bike's page
-      was scanned")? Which provider?
-- [ ] **Privacy policy + ToS** — needed before real users (PII + theft
-      claims).
-- [ ] **QR label size/format and branding** (see decision 0002).
+All open decisions now live in [`questions.md`](questions.md), with a
+recommended default for each so the loop can keep moving while you think.
+Answer them inline there. Summary of what's open:
+
+- Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
+  this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
+  Q7 QR label format.
+- Infrastructure is done: R2, DB schema, a working production deploy, and
+  Google OAuth redirect URIs verified. Two by-hand items are left, both in
+  [`questions.md`](questions.md): publish the OAuth consent screen before
+  launch, and decide whether signed-in Vercel previews matter.
 
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-30 — Refreshed this branch onto `main` (docs conflict only) so it
+  can be merged; no code changes since 2026-10-18.
 
 - 2026-10-18 — Regenerated `pnpm-lock.yaml` for the new dev deps (vitest, PGlite); fixes `ERR_PNPM_OUTDATED_LOCKFILE` on deploy. Both `package-lock.json` and `pnpm-lock.yaml` are committed — keep them in sync or drop one.
 
@@ -141,6 +146,21 @@ Newest first. One line per merged change.
   bike actions return inline errors; lint fixed (`requireEnv` helper, Biome
   CSS override) and CI added; vitest + PGlite tests; first migration
   committed; `not-found` page, title template, OG/Twitter cards on `/b/[id]`.
+
+- 2026-10-29 — Google OAuth production URLs added and verified: the
+  authorization URL carries the right `redirect_uri` and Google accepts it.
+
+- 2026-10-28 — Production env vars set on Vercel; the deploy now serves
+  `/` and `/search` and queries the live DB. Infra is no longer a blocker.
+
+- 2026-10-28 — Verified live infra: R2 configured and Neon schema already
+  pushed (both Health boxes ticked). Found the Vercel deployment 500s on
+  every route because the env vars live only in the gitignored local `.env`.
+
+- 2026-10-28 — Async rollout setup: `/advance` slash command (one unit of
+  work per run, opens a PR, parks blocked decisions), `docs/rollout.md`
+  (critical path to launch), `docs/questions.md` (answer-inline question
+  inbox). No code changes.
 
 - 2026-10-15 — Fix `BetterAuthError: Drizzle schema mismatch`: `drizzleAdapter` in `src/lib/auth.ts` now gets `schema: authSchema`.
 
