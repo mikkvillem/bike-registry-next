@@ -24,11 +24,10 @@ Nothing here needs a decision from you. This is the loop's first work.
 - [x] **Regenerate and commit DB migrations.** `src/db/migrations/0000_*.sql`
       is committed and the tests apply it. ⚠️ The live DB is still managed
       with `db:push`; moving it to `db:migrate` is a follow-up.
-- [x] **Form error handling** — add/edit bike return `{ error }` and show it
-      inline. ⚠️ Follow-up: the theft-report actions still throw, so those
-      validation errors show a generic message in production.
+- [x] **Form error handling** — add/edit bike and the theft report all
+      return `{ error }` and show it inline.
 - [x] **A few tests** — vitest + PGlite cover serial uniqueness and theft
-      status transitions.
+      status transitions, plus unit tests for theft-date validation.
 
 ## Stage 2 — Make the public surface good
 
