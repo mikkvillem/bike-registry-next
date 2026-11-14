@@ -12,6 +12,7 @@ import {
   theft,
 } from "@/db/schema/schema";
 import { photoUrlsFromForm } from "@/lib/bike-photos";
+import { isUniqueViolation } from "@/lib/db-errors";
 import { getSession } from "@/lib/session";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -140,13 +141,7 @@ function parseBikeFields(formData: FormData) {
 }
 
 function isDuplicateError(error: unknown) {
-  return (
-    error instanceof Error &&
-    // The driver may wrap the pg error, so check the cause chain too.
-    [error.message, String((error as { cause?: unknown }).cause)].some((m) =>
-      m.includes("bicycle_serial_make_model_idx"),
-    )
-  );
+  return isUniqueViolation(error, "bicycle_serial_make_model_idx");
 }
 
 async function requireOwnedBike(bikeId: string) {

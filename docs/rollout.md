@@ -28,6 +28,11 @@ Nothing here needs a decision from you. This is the loop's first work.
       return `{ error }` and show it inline.
 - [x] **A few tests** — vitest + PGlite cover serial uniqueness and theft
       status transitions, plus unit tests for theft-date validation.
+- [x] **Server-action tests** — the four theft actions run against in-memory
+      Postgres, including the authorization boundary (a stranger or a
+      signed-out visitor cannot report, publish, recover or withdraw someone
+      else's bike). 62 tests total. Found and fixed a bug: the duplicate
+      theft-report message was never reached.
 
 ## Stage 2 — Make the public surface good
 

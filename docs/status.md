@@ -1,8 +1,7 @@
 # Project Status
 
-**Last updated:** 2026-10-30 — #15 merged (inline theft-form errors); i18n
-scaffolded with Estonian as the default locale; `/privacy` and `/terms`
-stubbed
+**Last updated:** 2026-11-14 — the theft server actions are under test,
+authorization included; a duplicate-report bug fixed along the way
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -26,7 +25,9 @@ needs from you — answer there, inline, whenever you have a minute.
       branch protection.
 - [x] **Tests** — `npm test` (vitest + in-memory Postgres via PGlite, applied
       from the committed migration): serial uniqueness, theft rules, and
-      theft-date validation. No UI/server-action tests yet.
+      theft-date validation, plus the four theft server actions end to end
+      (including the authorization boundary) and the unique-violation
+      helper. 62 tests. ⚠️ No UI/component tests yet.
 - [x] **DB migrations committed** — `src/db/migrations/0000_*.sql`, used by
       the tests. ⚠️ The real DB is still managed with `db:push`; don't run
       `db:migrate` against it (tables already exist). Regenerate with
@@ -143,6 +144,17 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-11-14 — The four theft server actions now run under test against
+  in-memory Postgres (`tests/theft-actions.test.ts`), covering the
+  authorization boundary: a stranger or a signed-out visitor cannot report,
+  publish, recover or withdraw someone else's bike. This found a real bug —
+  `reportTheft` recognised a duplicate report by matching the index name
+  against `error.message`, but drizzle wraps driver errors and its message
+  holds only the failed SQL, so the friendly "already has an open theft
+  report" message was never reached and the owner got a generic error. The
+  check moved to `src/lib/db-errors.ts`, which walks the cause chain and
+  also reads the pg `constraint` property; `createBike` now shares it.
 
 - 2026-10-30 — `/privacy` and `/terms` routes added as clearly-marked
   placeholders (`noindex`, nothing links to them), so the real text from Q5

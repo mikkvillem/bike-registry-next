@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
+import { isUniqueViolation } from "@/lib/db-errors";
 import { getSession } from "@/lib/session";
 import { parseStolenOn } from "@/lib/theft-date";
 
@@ -79,10 +80,7 @@ export async function reportTheft(
       publishedAt: publish ? new Date() : null,
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.includes("theft_bicycle_active_idx")
-    ) {
+    if (isUniqueViolation(error, "theft_bicycle_active_idx")) {
       return { error: "This bike already has an open theft report." };
     }
     throw error;
