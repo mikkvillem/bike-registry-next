@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CornerMarks, HorizontalDivider } from "@/components/framing";
 import type { bicycle, theft } from "@/db/schema/schema";
 import { PRODUCT_NAME } from "@/lib/brand";
-import type { Dictionary, Locale } from "@/lib/i18n";
+import type { Dictionary } from "@/lib/i18n";
 
 type Bike = typeof bicycle.$inferSelect;
 type Theft = typeof theft.$inferSelect;
@@ -33,12 +33,10 @@ export function bikeName(
 export function BikeStatus({
   bike,
   activeTheft,
-  locale,
   t,
 }: {
   bike: Bike;
   activeTheft: Theft | undefined;
-  locale: Locale;
   t: Dictionary;
 }) {
   const name = bikeName(bike, t);
@@ -134,8 +132,9 @@ export function BikeStatus({
               <SpecRow
                 label={t.bikePage.theft.reportedOn}
                 value={
-                  activeTheft.publishedAt?.toLocaleDateString(locale) ??
-                  t.bikePage.specs.empty
+                  activeTheft.publishedAt
+                    ? isoDate(activeTheft.publishedAt)
+                    : t.bikePage.specs.empty
                 }
               />
             </dl>
@@ -235,6 +234,20 @@ export function BikeStatus({
       </section>
     </main>
   );
+}
+
+/**
+ * A date as YYYY-MM-DD, matching how `stolenOn` is stored and shown, so the
+ * theft panel doesn't put two notations side by side.
+ *
+ * Deliberately not `toLocaleDateString`: this renders on the server, which
+ * runs in UTC on Vercel, so a locale-formatted date silently shifts by a day
+ * for a report published late in the Estonian evening. ISO at least says
+ * plainly which calendar day it means. Picking a display timezone is a
+ * market decision, not this component's — parked as a question.
+ */
+function isoDate(value: Date): string {
+  return value.toISOString().slice(0, 10);
 }
 
 /** One label/value row. Stacks on a narrow phone, two columns from `sm`. */

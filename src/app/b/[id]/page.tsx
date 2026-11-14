@@ -7,6 +7,14 @@ import { bicycle, theft } from "@/db/schema/schema";
 import { getDictionary } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/locale-server";
 
+// Never serve this from a cache. A bike that was reported stolen a minute
+// ago must not still read REGISTERED — that failure defeats the whole
+// product. The route is already dynamic because the locale lookup reads
+// cookies, but that is incidental; say it outright so a later refactor of
+// the i18n plumbing can't quietly make this page static. `/stolen` declares
+// the same thing for the same reason.
+export const dynamic = "force-dynamic";
+
 async function getBike(id: string) {
   const [bike] = await db
     .select()
@@ -77,13 +85,11 @@ export default async function PublicBikePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { locale, t } = await getT();
+  const { t } = await getT();
 
   const bike = await getBike(id);
   if (!bike) notFound();
   const activeTheft = await getActiveTheft(bike.id);
 
-  return (
-    <BikeStatus bike={bike} activeTheft={activeTheft} locale={locale} t={t} />
-  );
+  return <BikeStatus bike={bike} activeTheft={activeTheft} t={t} />;
 }

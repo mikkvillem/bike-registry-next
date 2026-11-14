@@ -149,7 +149,10 @@ Answer them inline there. Summary of what's open:
 
 - Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
   this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
-  Q7 QR label format.
+  Q7 QR label format · Q8 locale in the URL · Q9 landing-page pitch ·
+  Q10 timezone for public dates.
+- **Most blocking right now:** Q1 and Q9. Nearly everything left on the
+  critical path is public copy, and Q9 is the first thing a visitor reads.
 - Infrastructure is done: R2, DB schema, a working production deploy, and
   Google OAuth redirect URIs verified. Two by-hand items are left, both in
   [`questions.md`](questions.md): publish the OAuth consent screen before
@@ -158,6 +161,16 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-11-14 — Self-review of the open stack. `/b/[id]` now declares
+  `dynamic = "force-dynamic"` instead of relying on an incidental cookie
+  read to stay uncached — a cached REGISTERED page for a bike reported
+  stolen is the one failure this product cannot have. Public dates render as
+  `YYYY-MM-DD` rather than `toLocaleDateString`, which formatted in the
+  server's UTC and could show a day earlier than the owner filed; the
+  display-timezone call is now Q10. Two findings left open for you:
+  `/search` still surfaces Next's generic English error instead of the
+  translated one, and `/search` prints full serial numbers (Q2).
 
 - 2026-11-14 — The header wraps to two rows below `sm` — brand and the ET/EN
   switch on the first, links on the second — and stays one row above it. The
