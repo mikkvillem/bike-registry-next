@@ -24,11 +24,10 @@ Nothing here needs a decision from you. This is the loop's first work.
 - [x] **Regenerate and commit DB migrations.** `src/db/migrations/0000_*.sql`
       is committed and the tests apply it. ⚠️ The live DB is still managed
       with `db:push`; moving it to `db:migrate` is a follow-up.
-- [x] **Form error handling** — add/edit bike return `{ error }` and show it
-      inline. ⚠️ Follow-up: the theft-report actions still throw, so those
-      validation errors show a generic message in production.
+- [x] **Form error handling** — add/edit bike and the theft report all
+      return `{ error }` and show it inline.
 - [x] **A few tests** — vitest + PGlite cover serial uniqueness and theft
-      status transitions.
+      status transitions, plus unit tests for theft-date validation.
 
 ## Stage 2 — Make the public surface good
 
@@ -47,11 +46,12 @@ This is the product. Most of the remaining value is in these four items.
 
 ## Stage 3 — Make it Estonian
 
-- [ ] **i18n setup, ET first and EN second.** All copy is hardcoded English
-      today. Doing this before Stage 2's copy is written saves redoing it, so
-      the loop should land the i18n scaffolding early in Stage 2.
-- [ ] **Translate the public surface.** Owner-side screens can stay English
-      at launch.
+- [x] **i18n setup, ET first and EN second.** `src/lib/i18n.ts` +
+      `src/lib/dictionaries/`, locale from a cookie then `Accept-Language`,
+      ET default, ET/EN switcher in the header. URL-vs-cookie is Q8.
+- [ ] **Translate the public surface.** Done: header nav, 404, `/stolen`.
+      Left: `/b/[id]`, `/search`, the sign-in/out buttons. Owner-side
+      screens can stay English at launch.
 
 ## Stage 4 — Legal and launch
 

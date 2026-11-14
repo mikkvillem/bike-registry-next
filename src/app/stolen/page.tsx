@@ -3,13 +3,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
+import { PRODUCT_NAME } from "@/lib/brand";
+import { getDictionary } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/locale-server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Stolen bikes",
-  description: "Recently reported stolen bikes. Check before you buy.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = getDictionary(await getLocale());
+  return {
+    title: t.stolen.metaTitle,
+    description: t.stolen.metaDescription,
+  };
+}
 
 const FEED_LIMIT = 50;
 
@@ -17,6 +23,8 @@ const FEED_LIMIT = 50;
 // what the public /b/[id] page already shows for a stolen bike (no serial
 // number, no contact) — see decisions 0002 and 0003.
 export default async function StolenFeedPage() {
+  const { locale, t } = await getT();
+
   const rows = await db
     .select({
       id: bicycle.id,
@@ -43,20 +51,18 @@ export default async function StolenFeedPage() {
 
   return (
     <main className="mx-auto max-w-2xl p-6">
-      <p className="text-sm opacity-60">Bike Registry</p>
-      <h1 className="mt-1 text-2xl font-semibold">Stolen bikes</h1>
+      <p className="text-sm opacity-60">{PRODUCT_NAME}</p>
+      <h1 className="mt-1 text-2xl font-semibold">{t.stolen.title}</h1>
       <p className="mt-2 text-sm opacity-70">
-        Recently reported thefts. Looking at a second-hand bike?{" "}
+        {t.stolen.intro}{" "}
         <Link href="/search" className="underline">
-          Check its serial number
+          {t.stolen.introLink}
         </Link>
         .
       </p>
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-sm opacity-60">
-          No stolen bikes are currently reported.
-        </p>
+        <p className="mt-8 text-sm opacity-60">{t.stolen.empty}</p>
       ) : (
         <ul className="mt-6 space-y-4">
           {rows.map((bike) => (
@@ -83,18 +89,25 @@ export default async function StolenFeedPage() {
                         {bike.model && ` ${bike.model}`}
                       </h2>
                       <p className="text-xs opacity-60">
-                        {bike.type ? `${bike.type} bike` : "Bike"}
+                        {bike.type
+                          ? t.bikeType[bike.type]
+                          : t.bikeType.fallback}
                       </p>
                     </div>
                     <span className="flex-shrink-0 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-800 dark:bg-red-950 dark:text-red-200">
-                      Stolen
+                      {t.stolen.badge}
                     </span>
                   </div>
                   <p className="mt-2 text-xs text-red-700 dark:text-red-300">
-                    {[bike.stolenOn && `Stolen ${bike.stolenOn}`, bike.location]
+                    {[
+                      bike.stolenOn && t.stolen.stolenOn(bike.stolenOn),
+                      bike.location,
+                    ]
                       .filter(Boolean)
                       .join(" · ") ||
-                      `Reported ${bike.publishedAt?.toLocaleDateString()}`}
+                      t.stolen.reportedOn(
+                        bike.publishedAt?.toLocaleDateString(locale) ?? "",
+                      )}
                   </p>
                 </div>
               </Link>

@@ -116,6 +116,31 @@ and no money changing hands.
 
 ---
 
+### Q8 — Should the language be in the URL?
+
+**Blocks:** nothing today — shipped behind a default. Gets expensive to
+change once stolen-bike links are shared around, because the URLs change.
+
+**How it works now:** the locale lives in a cookie, with Estonian as the
+default and the browser's `Accept-Language` as the fallback. One URL per
+bike, and visitors see it in their own language.
+
+**The trade-off:** a shared link can't carry a language, so pasting a stolen
+bike into an English-language Facebook group still shows Estonian to an
+Estonian-speaking reader's browser (fine) but you cannot deliberately share
+the English version. Search engines also only ever index one language per
+URL. The alternative is `/et/b/...` and `/en/b/...` path segments, which
+fixes both but changes every public URL and means re-printing any QR labels
+already made.
+
+**Recommended default:** keep the cookie. QR labels point at `/b/[id]`, and
+locale-prefixed URLs would break every label already printed. Revisit before
+any real SEO push.
+
+**Answer:**
+
+---
+
 ## Infrastructure you need to do by hand
 
 The loop can't do these — they need your accounts.

@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
 import { getSession } from "@/lib/session";
+import { parseStolenOn } from "@/lib/theft-date";
 
 async function requireOwnedBike(bikeId: string) {
   const session = await getSession();
@@ -41,28 +42,25 @@ async function requireActiveTheft(bikeId: string) {
   return report;
 }
 
-function parseStolenOn(value: FormDataEntryValue | null): string {
-  const raw = typeof value === "string" ? value.trim() : "";
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || Number.isNaN(Date.parse(raw))) {
-    throw new Error("Enter the date the bike was stolen.");
-  }
-  // One day of slack so owners ahead of UTC (Estonia is UTC+2/+3) can pick
-  // their local "today" right after midnight.
-  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
-  if (raw > tomorrow) {
-    throw new Error("The theft date can't be in the future.");
-  }
-  return raw;
-}
+/**
+ * Validation errors are returned, not thrown: a thrown message is replaced
+ * with a generic one in production, so the owner would never learn what was
+ * actually wrong with their input.
+ */
+export type TheftActionResult = { error: string } | undefined;
 
 function optionalText(value: FormDataEntryValue | null): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-export async function reportTheft(bikeId: string, formData: FormData) {
+export async function reportTheft(
+  bikeId: string,
+  formData: FormData,
+): Promise<TheftActionResult> {
   await requireOwnedBike(bikeId);
+
+  const stolenOn = parseStolenOn(formData.get("stolenOn"));
+  if (stolenOn.error !== undefined) return { error: stolenOn.error };
 
   const contact = optionalText(formData.get("contact"));
   const publish = formData.get("publish") === "on";
@@ -72,7 +70,7 @@ export async function reportTheft(bikeId: string, formData: FormData) {
       id: crypto.randomUUID(),
       bicycleId: bikeId,
       status: "active",
-      stolenOn: parseStolenOn(formData.get("stolenOn")),
+      stolenOn: stolenOn.value,
       location: optionalText(formData.get("location")),
       description: optionalText(formData.get("description")),
       contact,
@@ -85,7 +83,7 @@ export async function reportTheft(bikeId: string, formData: FormData) {
       error instanceof Error &&
       error.message.includes("theft_bicycle_active_idx")
     ) {
-      throw new Error("This bike already has an open theft report.");
+      return { error: "This bike already has an open theft report." };
     }
     throw error;
   }
