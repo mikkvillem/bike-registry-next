@@ -1,7 +1,8 @@
 # Project Status
 
 **Last updated:** 2026-10-30 — #15 merged (inline theft-form errors); i18n
-scaffolded with Estonian as the default locale
+scaffolded with Estonian as the default locale; `/privacy` and `/terms`
+stubbed
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -142,6 +143,10 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-10-30 — `/privacy` and `/terms` routes added as clearly-marked
+  placeholders (`noindex`, nothing links to them), so the real text from Q5
+  can slot in. No legal copy written.
 
 - 2026-10-30 — i18n scaffolding: `src/lib/i18n.ts` resolves the locale from a
   cookie then `Accept-Language` (ET default, decision 0001), dictionaries in

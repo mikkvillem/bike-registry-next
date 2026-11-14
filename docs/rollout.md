@@ -55,8 +55,10 @@ This is the product. Most of the remaining value is in these four items.
 
 ## Stage 4 — Legal and launch
 
-- [ ] **`/privacy` and `/terms` routes** with placeholder content. Behind Q5
-      for the real text.
+- [x] **`/privacy` and `/terms` routes** exist with clearly-marked
+      placeholder content, `noindex`, and nothing linking to them yet. Behind
+      Q5 for the real text and the legal entity — linking them from the UI is
+      part of that follow-up.
 - [x] **Deployed and serving** — Vercel, `bike-registry-next.vercel.app`,
       env vars set, querying the live DB. Stage 2 work can now be checked on
       the real site.
