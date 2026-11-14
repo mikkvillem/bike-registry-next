@@ -55,7 +55,7 @@ export default async function RootLayout({
                 <Link href="/dashboard" className="text-sm hover:underline">
                   {t.nav.dashboard}
                 </Link>
-                <SignOutButton />
+                <SignOutButton locale={locale} />
               </>
             )}
           </nav>

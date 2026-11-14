@@ -2,13 +2,17 @@
 
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
+import type { bicycleTypeEnum } from "@/db/schema/schema";
 import { bicycle, theft } from "@/db/schema/schema";
+
+/** The bike types the schema allows, so callers can look up a label. */
+type BikeType = (typeof bicycleTypeEnum.enumValues)[number];
 
 export type SearchResult = {
   id: string;
   make: string;
   model: string | null;
-  type: string | null;
+  type: BikeType | null;
   serialNumber: string;
   imageUrls: string[] | null;
   stolen: {

@@ -1,8 +1,11 @@
 import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BikeStatus, bikeName } from "@/app/b/[id]/bike-status";
 import { db } from "@/db";
 import { bicycle, theft } from "@/db/schema/schema";
+import { getDictionary } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/locale-server";
 
 async function getBike(id: string) {
   const [bike] = await db
@@ -38,21 +41,16 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  const t = getDictionary(await getLocale());
   const bike = await getBike(id);
-  if (!bike) return { title: "Bike not found" };
+  if (!bike) return { title: t.bikePage.notFoundTitle };
   const activeTheft = await getActiveTheft(bike.id);
 
-  const name = [bike.make, bike.model].filter(Boolean).join(" ");
-  const title = activeTheft ? `STOLEN: ${name}` : name;
+  const name = bikeName(bike, t);
+  const title = activeTheft ? t.bikePage.stolenTitlePrefix(name) : name;
   const description = activeTheft
-    ? [
-        "Reported stolen",
-        activeTheft.stolenOn && `on ${activeTheft.stolenOn}`,
-        activeTheft.location && `in ${activeTheft.location}`,
-      ]
-        .filter(Boolean)
-        .join(" ")
-    : "Registered — not reported stolen.";
+    ? t.bikePage.metaReportedStolen(activeTheft.stolenOn, activeTheft.location)
+    : t.bikePage.metaRegistered;
   const image = bike.imageUrls?.[0];
 
   return {
@@ -71,81 +69,21 @@ export async function generateMetadata({
 // finder, buyer, or police officer can check registration + theft status by
 // scanning the tag. Keep this page free of PII beyond what the owner has
 // explicitly opted into (see theft.contactPublic).
+//
+// The layout lives in `bike-status.tsx`; this route only fetches.
 export default async function PublicBikePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const { locale, t } = await getT();
 
   const bike = await getBike(id);
   if (!bike) notFound();
   const activeTheft = await getActiveTheft(bike.id);
 
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <p className="text-sm opacity-60">Bike Registry</p>
-      <h1 className="mt-1 text-2xl font-semibold">{bike.type ?? "Bike"}</h1>
-
-      {activeTheft ? (
-        <div className="mt-4 rounded border border-red-600 bg-red-50 p-4 text-red-800">
-          <p className="font-semibold">Reported stolen</p>
-          {(activeTheft.stolenOn || activeTheft.location) && (
-            <p className="mt-1 text-sm">
-              {[
-                activeTheft.stolenOn && `Stolen ${activeTheft.stolenOn}`,
-                activeTheft.location,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          )}
-          {activeTheft.description && (
-            <p className="mt-1 whitespace-pre-wrap text-sm">
-              {activeTheft.description}
-            </p>
-          )}
-          <p className="mt-2 text-sm opacity-80">
-            Reported on {activeTheft.publishedAt?.toLocaleDateString()}.
-            {activeTheft.contactPublic && activeTheft.contact
-              ? ` Contact: ${activeTheft.contact}`
-              : " If you have information about this bike, contact local police."}
-          </p>
-        </div>
-      ) : (
-        <div className="mt-4 rounded border border-green-600 bg-green-50 p-4 text-green-800">
-          <p className="font-semibold">Registered — not reported stolen</p>
-        </div>
-      )}
-
-      {bike.imageUrls && bike.imageUrls.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {bike.imageUrls.map((url) => (
-            // biome-ignore lint/performance/noImgElement: user uploads (R2 or local), not optimized via next/image
-            <img
-              key={url}
-              src={url}
-              alt=""
-              className="aspect-square w-full rounded object-cover"
-            />
-          ))}
-        </div>
-      )}
-
-      <dl className="mt-6 grid grid-cols-2 gap-y-3 text-sm">
-        <dt className="opacity-60">Type</dt>
-        <dd>{bike.type ?? "—"}</dd>
-        <dt className="opacity-60">Gender</dt>
-        <dd>{bike.gender ?? "—"}</dd>
-        <dt className="opacity-60">Gear system</dt>
-        <dd>{bike.gearSystem ?? "—"}</dd>
-        <dt className="opacity-60">Number of gears</dt>
-        <dd>{bike.numGears ?? "—"}</dd>
-        <dt className="opacity-60">Wheel size</dt>
-        <dd>{bike.wheelSize ?? "—"}</dd>
-        <dt className="opacity-60">Weight</dt>
-        <dd>{bike.weight ? `${bike.weight} kg` : "—"}</dd>
-      </dl>
-    </main>
+    <BikeStatus bike={bike} activeTheft={activeTheft} locale={locale} t={t} />
   );
 }

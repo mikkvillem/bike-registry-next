@@ -1,7 +1,8 @@
 # Project Status
 
-**Last updated:** 2026-11-14 — the theft server actions are under test,
-authorization included; a duplicate-report bug fixed along the way
+**Last updated:** 2026-11-14 — `/b/[id]` redesigned phone-first, the theft
+server actions under test (authorization included), and PR #17's
+translations recovered
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -32,10 +33,14 @@ needs from you — answer there, inline, whenever you have a minute.
       the tests. ⚠️ The real DB is still managed with `db:push`; don't run
       `db:migrate` against it (tables already exist). Regenerate with
       `npm run db:generate` whenever the schema changes.
-- [ ] **Preview deploys work** — ❌ the Vercel check on PR #12 fails at
-      build: the env vars are scoped to Production only, and since `requireEnv`
-      landed a missing var fails `next build` outright. Production itself is
-      unaffected. See [`questions.md`](questions.md).
+- [x] **Preview deploys build** — fixed on your side between 2026-10-30 and
+      2026-11-14: the Vercel check now passes on PRs #19, #20 and #21, where
+      it used to fail at build for want of the env vars. ⚠️ The preview URLs
+      are behind Vercel's deployment protection, so opening one asks for a
+      Vercel login — previews are not a way to show a public page to someone
+      who isn't on your Vercel team. Google sign-in on previews is still
+      broken by design (the redirect URI never matches); see
+      [`questions.md`](questions.md).
 - [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
       serves 200 on `/` and `/search`, and the serial lookup queries the live
       Neon DB without error (verified 2026-10-28). Google OAuth redirect URI
@@ -113,16 +118,25 @@ Ordered by priority.
 
 ## Design to hone
 
-- [ ] **Public `/b/[id]` page** — highest-traffic page, least designed.
-      Bring into the framed design system; phone-first, glanceable STOLEN /
-      REGISTERED state, then photos, then identifying details (make, model are
-      missing today).
+- [x] **Public `/b/[id]` page** — redesigned 2026-11-14: framed design
+      system, phone-first, full-width STOLEN / REGISTERED band, then make and
+      model, cover photo plus thumbnails, theft report, specs. Dark-mode safe
+      and checked at 375px in both locales.
+- [ ] **Header nav on a phone** — found 2026-11-14 while checking `/b/[id]`
+      at 375px: the Estonian nav ("Kontrolli ratast", "Varastatud rattad")
+      wraps to two lines each and eats the top of every page. Needs a
+      narrow-screen treatment. Small, not blocking.
+- [ ] **No render tests** — the redesign was verified by eye against
+      fixtures, then the scaffold was deleted. A real check needs
+      `@testing-library/react`, which is a new dependency.
 - [ ] **Stolen-state treatment** — strong visual + an "I've seen this bike"
       action (who it contacts is a decision for you, see below).
-- [ ] **Estonian UI** — i18n is scaffolded (ET default, EN second, cookie +
-      `Accept-Language`). Translated: header nav, 404, `/stolen`. Left:
-      `/b/[id]`, `/search`, auth buttons. The Estonian wording is an agent
-      first pass and wants a native read-through.
+- [ ] **Estonian UI** — the whole public surface is translated (ET default,
+      EN second, cookie + `Accept-Language`): nav, 404, `/stolen`,
+      `/b/[id]`, `/search`, auth buttons. The landing page is deliberately
+      still English — its copy sells the old product, see Q9. The Estonian
+      wording throughout is an agent first pass and wants a native
+      read-through.
 - [ ] **Add-bike form** — shorter, serial first with a "where to find it"
       hint (under the bottom bracket), optional specs collapsed.
 - [ ] **QR label** — placeholder design; waiting on size/format + branding.
@@ -156,9 +170,27 @@ Newest first. One line per merged change.
   check moved to `src/lib/db-errors.ts`, which walks the cause chain and
   also reads the pg `constraint` property; `createBike` now shares it.
 
+- 2026-11-14 — `/b/[id]` redesigned phone-first: a full-width status band
+  (red panel when stolen, inverted neutral panel when not), then make and
+  model — which the page never showed — then a cover photo plus thumbnails,
+  the theft report, and the specs. Layout moved to
+  `src/app/b/[id]/bike-status.tsx`, so it renders without a database. Fixed
+  Estonian "REGISTREERITUD" overflowing the band at 375px. Serial number
+  still deliberately absent, pending Q2.
+
+- 2026-11-14 — Recovered PR #17, whose work never reached `main`: it was
+  opened against `claude/i18n-scaffolding` rather than `main`, and #16 had
+  already merged that branch, so merging #17 landed its commits on a dead
+  branch. Re-merged unchanged; no code rewritten.
+
 - 2026-10-30 — `/privacy` and `/terms` routes added as clearly-marked
   placeholders (`noindex`, nothing links to them), so the real text from Q5
   can slot in. No legal copy written.
+
+- 2026-10-30 — Public surface translated: `/b/[id]`, `/search` and the auth
+  buttons now read from the dictionaries, including the bike type, gender and
+  gear-system enums. `/search` split into a server page + client form so the
+  locale reaches it. Landing-page copy left in English as Q9.
 
 - 2026-10-30 — i18n scaffolding: `src/lib/i18n.ts` resolves the locale from a
   cookie then `Accept-Language` (ET default, decision 0001), dictionaries in

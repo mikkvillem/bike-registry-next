@@ -40,4 +40,77 @@ export const et: Dictionary = {
     kids: "Lasteratas",
     cargo: "Kaubaratas",
   },
+  gender: {
+    male: "Meeste",
+    female: "Naiste",
+    unisex: "Uniseks",
+  },
+  gearSystem: {
+    internal: "Sisemine",
+    external: "Väline",
+    fixie: "Fikseeritud käik",
+  },
+  bikePage: {
+    notFoundTitle: "Ratast ei leitud",
+    stolenTitlePrefix: (name: string) => `VARASTATUD: ${name}`,
+    metaReportedStolen: (date: string | null, location: string | null) =>
+      ["Teatatud varastatuks", date, location && `· ${location}`]
+        .filter(Boolean)
+        .join(" "),
+    metaRegistered: "Registreeritud — varguseteadet pole.",
+    statusStolen: "Varastatud",
+    statusRegistered: "Registreeritud",
+    stolenLead: "Ratta registreeritud omanik on teatanud selle varastatuks.",
+    registeredLead: "Ratas on registreeritud ja aktiivset vargusteadet pole.",
+    theftHeading: "Vargusteade",
+    seenHeading: "Kas oled seda ratast näinud?",
+    contactLead: "Omanik palus endaga otse ühendust võtta:",
+    policeLead:
+      "Omanik pole kontakti avaldanud. Kui sul on selle ratta kohta infot, võta ühendust kohaliku politseiga.",
+    specsHeading: "Registreering",
+    photoAlt: (name: string) => `Ratta "${name}" foto`,
+    footerLead: "Igaüks saab siin ratast kontrollida — kontot pole vaja.",
+    checkAnother: "Kontrolli seerianumbrit",
+    browseStolen: "Varastatud rattad",
+    theft: {
+      stolenOn: "Varastatud",
+      location: "Asukoht",
+      details: "Lisainfo",
+      reportedOn: "Teatatud",
+    },
+    specs: {
+      make: "Mark",
+      model: "Mudel",
+      type: "Tüüp",
+      gender: "Sugu",
+      gearSystem: "Käigusüsteem",
+      numGears: "Käikude arv",
+      wheelSize: "Rattasuurus",
+      weight: "Kaal",
+      kilograms: (weight: number) => `${weight} kg`,
+      empty: "—",
+    },
+  },
+  search: {
+    title: "Leia ratas",
+    intro:
+      "Otsi seerianumbri järgi, et kontrollida registreeringut ja vargusteadet.",
+    placeholder: "Sisesta seerianumber…",
+    submit: "Otsi",
+    failed: "Otsing ebaõnnestus",
+    noResults: "Selle seerianumbriga ratast ei leitud.",
+    found: (count: number) =>
+      count === 1 ? "Leiti 1 ratas" : `Leiti ${count} ratast`,
+    badgeStolen: "Varastatud",
+    badgeOk: "Korras",
+    serial: (serial: string) => `Seerianumber: ${serial}`,
+    reportedStolen: (date: string | null, location: string | null) =>
+      ["Teatatud varastatuks", date, location && `· ${location}`]
+        .filter(Boolean)
+        .join(" "),
+  },
+  auth: {
+    signIn: "Logi sisse Google'iga",
+    signOut: "Logi välja",
+  },
 };

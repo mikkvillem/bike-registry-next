@@ -41,6 +41,12 @@ claim), or hide it entirely and only confirm a match via `/search`.
 **Recommended default:** mask to the last 4 characters. A buyer can still
 confirm the bike in front of them; a thief can't copy a serial off the page.
 
+**Worth knowing before you answer (found 2026-11-14):** `/b/[id]` shows no
+serial at all today, but `/search` already prints the **full** serial on
+every public result. So the answer here should cover both pages — whatever
+you pick, they should match. If you want masking, `/search` needs changing
+too, not just the bike page.
+
 **Answer:**
 
 ---
@@ -141,6 +147,30 @@ any real SEO push.
 
 ---
 
+### Q9 — The landing page still sells the old product
+
+**Blocks:** translating the landing page, and anyone's first impression of
+the site.
+
+**What's there now:** "Your bikes, catalogued", "The bike registry system",
+"Keep track of every bike you own — photos, specs, and details, all
+organized in one place. Built in-house, no spreadsheets required." That
+describes a personal bike catalogue, which is what this was before the theft
+registry became the point. A visitor who arrives from a QR tag or a stolen
+link reads nothing about theft, searching a serial, or trust.
+
+**Why I didn't just rewrite it:** this is positioning and marketing copy,
+which CLAUDE.md puts in the ask-first bucket. I also left it untranslated —
+translating the wrong pitch into Estonian means writing it twice.
+
+**Recommended default:** lead with the theft story: register a bike, publish
+it stolen in minutes, and anyone can check a serial or scan a tag. I can
+draft that for your approval rather than ship it.
+
+**Answer:**
+
+---
+
 ## Infrastructure you need to do by hand
 
 The loop can't do these — they need your accounts.
@@ -182,8 +212,15 @@ The loop can't do these — they need your accounts.
       non-sensitive scopes this app uses (email, profile) does not require
       Google review.
 
-- [ ] **Scope the env vars to Preview, not just Production.** Found
-      2026-10-30: the Vercel check on PR #12 fails at build, not at runtime.
+- [x] **Scope the env vars to Preview, not just Production.** Done — the
+      Vercel check passes on PRs #19, #20 and #21 (verified 2026-11-14),
+      where it used to fail at build. Note that preview URLs are behind
+      Vercel's deployment protection, so opening one asks for a Vercel
+      login; previews aren't a way to show a page to someone outside your
+      Vercel team. Original diagnosis below, kept for the record.
+
+      Found 2026-10-30: the Vercel check on PR #12 fails at build, not at
+      runtime.
       Since that PR, `DATABASE_URL`, `GOOGLE_CLIENT_ID`,
       `GOOGLE_CLIENT_SECRET` and `BETTER_AUTH_SECRET` are read through
       `requireEnv` (`src/lib/env.ts`), which throws when one is missing —

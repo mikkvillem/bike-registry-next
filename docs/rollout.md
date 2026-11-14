@@ -38,9 +38,12 @@ Nothing here needs a decision from you. This is the loop's first work.
 
 This is the product. Most of the remaining value is in these four items.
 
-- [ ] **Redesign `/b/[id]`** — phone-first, glanceable STOLEN / REGISTERED
-      state, then photos, then make/model/specs (make and model are missing
-      from the page today). Bring into the framed design system.
+- [x] **Redesign `/b/[id]`** — phone-first. Full-width status band (red
+      panel when stolen, the inverted neutral panel when not), then make and
+      model, then a large cover photo plus thumbnails, then the theft report,
+      then the registration specs. In the framed design system, dark-mode
+      safe. Layout split into `src/app/b/[id]/bike-status.tsx` so it renders
+      without a database. Serial number still absent, pending Q2.
 - [ ] **Stolen-state treatment** — strong visual plus the "I've seen this
       bike" action. Behind Q3.
 - [x] **Public stolen-bikes feed** — `/stolen`, latest 50 published thefts,
@@ -54,9 +57,10 @@ This is the product. Most of the remaining value is in these four items.
 - [x] **i18n setup, ET first and EN second.** `src/lib/i18n.ts` +
       `src/lib/dictionaries/`, locale from a cookie then `Accept-Language`,
       ET default, ET/EN switcher in the header. URL-vs-cookie is Q8.
-- [ ] **Translate the public surface.** Done: header nav, 404, `/stolen`.
-      Left: `/b/[id]`, `/search`, the sign-in/out buttons. Owner-side
-      screens can stay English at launch.
+- [x] **Translate the public surface.** Header nav, 404, `/stolen`,
+      `/b/[id]`, `/search` and the auth buttons. The landing page is left in
+      English on purpose — its copy still sells the old product, see Q9.
+      Owner-side screens stay English at launch.
 
 ## Stage 4 — Legal and launch
 
