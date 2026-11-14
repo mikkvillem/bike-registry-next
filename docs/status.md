@@ -1,8 +1,8 @@
 # Project Status
 
 **Last updated:** 2026-11-14 — `/b/[id]` redesigned phone-first, the theft
-server actions under test (authorization included), and PR #17's
-translations recovered
+server actions under test (authorization included), the header fixed on
+narrow screens, and PR #17's translations recovered
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -122,10 +122,10 @@ Ordered by priority.
       system, phone-first, full-width STOLEN / REGISTERED band, then make and
       model, cover photo plus thumbnails, theft report, specs. Dark-mode safe
       and checked at 375px in both locales.
-- [ ] **Header nav on a phone** — found 2026-11-14 while checking `/b/[id]`
-      at 375px: the Estonian nav ("Kontrolli ratast", "Varastatud rattad")
-      wraps to two lines each and eats the top of every page. Needs a
-      narrow-screen treatment. Small, not blocking.
+- [x] **Header nav on a phone** — fixed 2026-11-14. The header wraps to two
+      rows under `sm` (brand and the ET/EN switch on the first, links on the
+      second) and stays one row above it, so the Estonian labels no longer
+      break mid-phrase. No JavaScript, no hamburger.
 - [ ] **No render tests** — the redesign was verified by eye against
       fixtures, then the scaffold was deleted. A real check needs
       `@testing-library/react`, which is a new dependency.
@@ -158,6 +158,11 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-11-14 — The header wraps to two rows below `sm` — brand and the ET/EN
+  switch on the first, links on the second — and stays one row above it. The
+  Estonian labels were breaking mid-phrase at 375px and eating the top of
+  every page. CSS only; no hamburger, no client JavaScript.
 
 - 2026-11-14 — The four theft server actions now run under test against
   in-memory Postgres (`tests/theft-actions.test.ts`), covering the
