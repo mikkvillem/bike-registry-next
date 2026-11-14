@@ -34,6 +34,63 @@ export const en = {
     kids: "Kids' bike",
     cargo: "Cargo bike",
   },
+  gender: {
+    male: "Men's",
+    female: "Women's",
+    unisex: "Unisex",
+  },
+  gearSystem: {
+    internal: "Internal",
+    external: "External",
+    fixie: "Fixed gear",
+  },
+  bikePage: {
+    notFoundTitle: "Bike not found",
+    stolenTitlePrefix: (name: string) => `STOLEN: ${name}`,
+    metaReportedStolen: (date: string | null, location: string | null) =>
+      ["Reported stolen", date && `on ${date}`, location && `in ${location}`]
+        .filter(Boolean)
+        .join(" "),
+    metaRegistered: "Registered — not reported stolen.",
+    reportedStolen: "Reported stolen",
+    stolenOn: (date: string) => `Stolen ${date}`,
+    reportedOn: (date: string) => `Reported on ${date}.`,
+    contact: (contact: string) => ` Contact: ${contact}`,
+    policeHint:
+      " If you have information about this bike, contact local police.",
+    registered: "Registered — not reported stolen",
+    specs: {
+      type: "Type",
+      gender: "Gender",
+      gearSystem: "Gear system",
+      numGears: "Number of gears",
+      wheelSize: "Wheel size",
+      weight: "Weight",
+      kilograms: (weight: number) => `${weight} kg`,
+      empty: "—",
+    },
+  },
+  search: {
+    title: "Find a bike",
+    intro: "Search by serial number to check registration and theft status.",
+    placeholder: "Enter serial number...",
+    submit: "Search",
+    failed: "Search failed",
+    noResults: "No bikes found matching that serial number.",
+    found: (count: number) =>
+      count === 1 ? "Found 1 bike" : `Found ${count} bikes`,
+    badgeStolen: "Stolen",
+    badgeOk: "OK",
+    serial: (serial: string) => `Serial: ${serial}`,
+    reportedStolen: (date: string | null, location: string | null) =>
+      ["Reported stolen", date && `on ${date}`, location && `in ${location}`]
+        .filter(Boolean)
+        .join(" "),
+  },
+  auth: {
+    signIn: "Sign in with Google",
+    signOut: "Sign out",
+  },
 };
 
 /**

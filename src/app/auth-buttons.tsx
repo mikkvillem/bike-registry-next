@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-export function SignInButton() {
+export function SignInButton({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
   return (
     <button
       type="button"
@@ -15,12 +17,13 @@ export function SignInButton() {
       }
       className="rounded bg-foreground px-4 py-2 text-sm text-background"
     >
-      Sign in with Google
+      {t.auth.signIn}
     </button>
   );
 }
 
-export function SignOutButton() {
+export function SignOutButton({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
   const router = useRouter();
   return (
     <button
@@ -37,7 +40,7 @@ export function SignOutButton() {
       }
       className="text-sm opacity-70 hover:underline"
     >
-      Sign out
+      {t.auth.signOut}
     </button>
   );
 }
