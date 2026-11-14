@@ -141,6 +141,30 @@ any real SEO push.
 
 ---
 
+### Q9 — The landing page still sells the old product
+
+**Blocks:** translating the landing page, and anyone's first impression of
+the site.
+
+**What's there now:** "Your bikes, catalogued", "The bike registry system",
+"Keep track of every bike you own — photos, specs, and details, all
+organized in one place. Built in-house, no spreadsheets required." That
+describes a personal bike catalogue, which is what this was before the theft
+registry became the point. A visitor who arrives from a QR tag or a stolen
+link reads nothing about theft, searching a serial, or trust.
+
+**Why I didn't just rewrite it:** this is positioning and marketing copy,
+which CLAUDE.md puts in the ask-first bucket. I also left it untranslated —
+translating the wrong pitch into Estonian means writing it twice.
+
+**Recommended default:** lead with the theft story: register a bike, publish
+it stolen in minutes, and anyone can check a serial or scan a tag. I can
+draft that for your approval rather than ship it.
+
+**Answer:**
+
+---
+
 ## Infrastructure you need to do by hand
 
 The loop can't do these — they need your accounts.
