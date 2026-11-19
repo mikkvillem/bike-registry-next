@@ -41,6 +41,12 @@ claim), or hide it entirely and only confirm a match via `/search`.
 **Recommended default:** mask to the last 4 characters. A buyer can still
 confirm the bike in front of them; a thief can't copy a serial off the page.
 
+**Worth knowing before you answer (found 2026-11-14):** `/b/[id]` shows no
+serial at all today, but `/search` already prints the **full** serial on
+every public result. So the answer here should cover both pages — whatever
+you pick, they should match. If you want masking, `/search` needs changing
+too, not just the bike page.
+
 **Answer:**
 
 ---

@@ -1,8 +1,7 @@
 # Project Status
 
-**Last updated:** 2026-11-14 — recovered PR #17, which never reached `main`:
-the public surface is translated (Estonian by default) alongside the
-`/privacy` and `/terms` placeholders
+**Last updated:** 2026-11-14 — `/b/[id]`, the page a QR scan lands on, is
+redesigned phone-first; PR #17's translations recovered
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -112,10 +111,17 @@ Ordered by priority.
 
 ## Design to hone
 
-- [ ] **Public `/b/[id]` page** — highest-traffic page, least designed.
-      Bring into the framed design system; phone-first, glanceable STOLEN /
-      REGISTERED state, then photos, then identifying details (make, model are
-      missing today).
+- [x] **Public `/b/[id]` page** — redesigned 2026-11-14: framed design
+      system, phone-first, full-width STOLEN / REGISTERED band, then make and
+      model, cover photo plus thumbnails, theft report, specs. Dark-mode safe
+      and checked at 375px in both locales.
+- [ ] **Header nav on a phone** — found 2026-11-14 while checking `/b/[id]`
+      at 375px: the Estonian nav ("Kontrolli ratast", "Varastatud rattad")
+      wraps to two lines each and eats the top of every page. Needs a
+      narrow-screen treatment. Small, not blocking.
+- [ ] **No render tests** — the redesign was verified by eye against
+      fixtures, then the scaffold was deleted. A real check needs
+      `@testing-library/react`, which is a new dependency.
 - [ ] **Stolen-state treatment** — strong visual + an "I've seen this bike"
       action (who it contacts is a decision for you, see below).
 - [ ] **Estonian UI** — the whole public surface is translated (ET default,
@@ -145,6 +151,14 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-11-14 — `/b/[id]` redesigned phone-first: a full-width status band
+  (red panel when stolen, inverted neutral panel when not), then make and
+  model — which the page never showed — then a cover photo plus thumbnails,
+  the theft report, and the specs. Layout moved to
+  `src/app/b/[id]/bike-status.tsx`, so it renders without a database. Fixed
+  Estonian "REGISTREERITUD" overflowing the band at 375px. Serial number
+  still deliberately absent, pending Q2.
 
 - 2026-11-14 — Recovered PR #17, whose work never reached `main`: it was
   opened against `claude/i18n-scaffolding` rather than `main`, and #16 had
