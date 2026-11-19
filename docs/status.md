@@ -1,7 +1,8 @@
 # Project Status
 
-**Last updated:** 2026-11-14 — `/b/[id]`, the page a QR scan lands on, is
-redesigned phone-first; PR #17's translations recovered
+**Last updated:** 2026-11-14 — `/b/[id]` redesigned phone-first, the theft
+server actions under test (authorization included), the header fixed on
+narrow screens, and PR #17's translations recovered
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -25,15 +26,21 @@ needs from you — answer there, inline, whenever you have a minute.
       branch protection.
 - [x] **Tests** — `npm test` (vitest + in-memory Postgres via PGlite, applied
       from the committed migration): serial uniqueness, theft rules, and
-      theft-date validation. No UI/server-action tests yet.
+      theft-date validation, plus the four theft server actions end to end
+      (including the authorization boundary) and the unique-violation
+      helper. 62 tests. ⚠️ No UI/component tests yet.
 - [x] **DB migrations committed** — `src/db/migrations/0000_*.sql`, used by
       the tests. ⚠️ The real DB is still managed with `db:push`; don't run
       `db:migrate` against it (tables already exist). Regenerate with
       `npm run db:generate` whenever the schema changes.
-- [ ] **Preview deploys work** — ❌ the Vercel check on PR #12 fails at
-      build: the env vars are scoped to Production only, and since `requireEnv`
-      landed a missing var fails `next build` outright. Production itself is
-      unaffected. See [`questions.md`](questions.md).
+- [x] **Preview deploys build** — fixed on your side between 2026-10-30 and
+      2026-11-14: the Vercel check now passes on PRs #19, #20 and #21, where
+      it used to fail at build for want of the env vars. ⚠️ The preview URLs
+      are behind Vercel's deployment protection, so opening one asks for a
+      Vercel login — previews are not a way to show a public page to someone
+      who isn't on your Vercel team. Google sign-in on previews is still
+      broken by design (the redirect URI never matches); see
+      [`questions.md`](questions.md).
 - [x] **Production deploy works** — `https://bike-registry-next.vercel.app`
       serves 200 on `/` and `/search`, and the serial lookup queries the live
       Neon DB without error (verified 2026-10-28). Google OAuth redirect URI
@@ -115,10 +122,10 @@ Ordered by priority.
       system, phone-first, full-width STOLEN / REGISTERED band, then make and
       model, cover photo plus thumbnails, theft report, specs. Dark-mode safe
       and checked at 375px in both locales.
-- [ ] **Header nav on a phone** — found 2026-11-14 while checking `/b/[id]`
-      at 375px: the Estonian nav ("Kontrolli ratast", "Varastatud rattad")
-      wraps to two lines each and eats the top of every page. Needs a
-      narrow-screen treatment. Small, not blocking.
+- [x] **Header nav on a phone** — fixed 2026-11-14. The header wraps to two
+      rows under `sm` (brand and the ET/EN switch on the first, links on the
+      second) and stays one row above it, so the Estonian labels no longer
+      break mid-phrase. No JavaScript, no hamburger.
 - [ ] **No render tests** — the redesign was verified by eye against
       fixtures, then the scaffold was deleted. A real check needs
       `@testing-library/react`, which is a new dependency.
@@ -142,7 +149,10 @@ Answer them inline there. Summary of what's open:
 
 - Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
   this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
-  Q7 QR label format.
+  Q7 QR label format · Q8 locale in the URL · Q9 landing-page pitch ·
+  Q10 timezone for public dates.
+- **Most blocking right now:** Q1 and Q9. Nearly everything left on the
+  critical path is public copy, and Q9 is the first thing a visitor reads.
 - Infrastructure is done: R2, DB schema, a working production deploy, and
   Google OAuth redirect URIs verified. Two by-hand items are left, both in
   [`questions.md`](questions.md): publish the OAuth consent screen before
@@ -151,6 +161,32 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-11-14 — Self-review of the open stack. `/b/[id]` now declares
+  `dynamic = "force-dynamic"` instead of relying on an incidental cookie
+  read to stay uncached — a cached REGISTERED page for a bike reported
+  stolen is the one failure this product cannot have. Public dates render as
+  `YYYY-MM-DD` rather than `toLocaleDateString`, which formatted in the
+  server's UTC and could show a day earlier than the owner filed; the
+  display-timezone call is now Q10. Two findings left open for you:
+  `/search` still surfaces Next's generic English error instead of the
+  translated one, and `/search` prints full serial numbers (Q2).
+
+- 2026-11-14 — The header wraps to two rows below `sm` — brand and the ET/EN
+  switch on the first, links on the second — and stays one row above it. The
+  Estonian labels were breaking mid-phrase at 375px and eating the top of
+  every page. CSS only; no hamburger, no client JavaScript.
+
+- 2026-11-14 — The four theft server actions now run under test against
+  in-memory Postgres (`tests/theft-actions.test.ts`), covering the
+  authorization boundary: a stranger or a signed-out visitor cannot report,
+  publish, recover or withdraw someone else's bike. This found a real bug —
+  `reportTheft` recognised a duplicate report by matching the index name
+  against `error.message`, but drizzle wraps driver errors and its message
+  holds only the failed SQL, so the friendly "already has an open theft
+  report" message was never reached and the owner got a generic error. The
+  check moved to `src/lib/db-errors.ts`, which walks the cause chain and
+  also reads the pg `constraint` property; `createBike` now shares it.
 
 - 2026-11-14 — `/b/[id]` redesigned phone-first: a full-width status band
   (red panel when stolen, inverted neutral panel when not), then make and

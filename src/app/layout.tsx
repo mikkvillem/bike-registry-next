@@ -38,27 +38,42 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="flex items-center justify-between border-b border-black/10 p-4 dark:border-white/10">
-          <Link href="/" className="font-semibold">
+        {/* Wraps to two rows on a phone — brand and controls on the first,
+            links on the second — because the Estonian labels ("Kontrolli
+            ratast", "Varastatud rattad") are long enough to break mid-phrase
+            at 375px and eat the top of every page. One row from `sm`. */}
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-black/10 p-4 dark:border-white/10">
+          <Link href="/" className="font-semibold whitespace-nowrap">
             {PRODUCT_NAME}
           </Link>
-          <nav className="flex items-center gap-4">
-            <Link href="/search" className="text-sm hover:underline">
+
+          <nav className="order-last flex w-full flex-wrap items-center gap-x-4 gap-y-2 sm:order-none sm:w-auto">
+            <Link
+              href="/search"
+              className="text-sm whitespace-nowrap hover:underline"
+            >
               {t.nav.checkBike}
             </Link>
-            <Link href="/stolen" className="text-sm hover:underline">
+            <Link
+              href="/stolen"
+              className="text-sm whitespace-nowrap hover:underline"
+            >
               {t.nav.stolenBikes}
             </Link>
-            <LocaleSwitcher locale={locale} />
             {session && (
-              <>
-                <Link href="/dashboard" className="text-sm hover:underline">
-                  {t.nav.dashboard}
-                </Link>
-                <SignOutButton locale={locale} />
-              </>
+              <Link
+                href="/dashboard"
+                className="text-sm whitespace-nowrap hover:underline"
+              >
+                {t.nav.dashboard}
+              </Link>
             )}
           </nav>
+
+          <div className="flex items-center gap-4">
+            <LocaleSwitcher locale={locale} />
+            {session && <SignOutButton locale={locale} />}
+          </div>
         </header>
         {children}
       </body>

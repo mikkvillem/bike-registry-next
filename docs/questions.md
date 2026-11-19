@@ -171,6 +171,36 @@ draft that for your approval rather than ship it.
 
 ---
 
+### Q10 — Which timezone do public dates mean?
+
+**Blocks:** nothing today — shipped behind a default. Worth answering before
+anyone relies on a date in a dispute.
+
+**The problem:** `publishedAt` is a timestamp, and the public page renders it
+on the server, which runs in UTC on Vercel. A report published at 00:30 in
+Estonia is 22:30 UTC the day before, so the page would tell readers it was
+filed a day earlier than the owner filed it — on a page whose whole job is
+to be believed.
+
+**What it does now:** renders dates as plain `YYYY-MM-DD`, matching how the
+owner-entered "date stolen" is already stored and shown, so at least the two
+dates in the theft panel use one notation. The UTC skew is still there,
+just no longer dressed up as a local date.
+
+**Options:** format everything in Europe/Tallinn (right for Estonia today,
+wrong the moment you expand — decision 0001 says not to bake in
+single-locale assumptions); keep UTC and label it; or render dates in the
+reader's own timezone, which needs a sliver of client JavaScript on an
+otherwise server-rendered page.
+
+**Recommended default:** Europe/Tallinn, as one exported constant, with the
+expansion problem noted — it is right for every user you will have this
+year, and it is a one-line change later.
+
+**Answer:**
+
+---
+
 ## Infrastructure you need to do by hand
 
 The loop can't do these — they need your accounts.
@@ -212,8 +242,15 @@ The loop can't do these — they need your accounts.
       non-sensitive scopes this app uses (email, profile) does not require
       Google review.
 
-- [ ] **Scope the env vars to Preview, not just Production.** Found
-      2026-10-30: the Vercel check on PR #12 fails at build, not at runtime.
+- [x] **Scope the env vars to Preview, not just Production.** Done — the
+      Vercel check passes on PRs #19, #20 and #21 (verified 2026-11-14),
+      where it used to fail at build. Note that preview URLs are behind
+      Vercel's deployment protection, so opening one asks for a Vercel
+      login; previews aren't a way to show a page to someone outside your
+      Vercel team. Original diagnosis below, kept for the record.
+
+      Found 2026-10-30: the Vercel check on PR #12 fails at build, not at
+      runtime.
       Since that PR, `DATABASE_URL`, `GOOGLE_CLIENT_ID`,
       `GOOGLE_CLIENT_SECRET` and `BETTER_AUTH_SECRET` are read through
       `requireEnv` (`src/lib/env.ts`), which throws when one is missing —
