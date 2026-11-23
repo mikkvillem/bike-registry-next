@@ -1,8 +1,8 @@
 # Project Status
 
-**Last updated:** 2026-11-14 — `/b/[id]` redesigned phone-first, the theft
-server actions under test (authorization included), the header fixed on
-narrow screens, and PR #17's translations recovered
+**Last updated:** 2026-11-23 — the landing page now says what the registry
+is and leads with the no-account serial check (Q9 answered, decision 0006);
+it is also translated for the first time
 
 Living doc. Every code change updates this file in the same commit/PR (see
 the rule in [`../CLAUDE.md`](../CLAUDE.md)). Read top to bottom for a quick
@@ -126,6 +126,16 @@ Ordered by priority.
       rows under `sm` (brand and the ET/EN switch on the first, links on the
       second) and stays one row above it, so the Estonian labels no longer
       break mid-phrase. No JavaScript, no hamburger.
+- [x] **Landing page** — rewritten 2026-11-23 (decision 0006): the headline
+      says what the registry is, the primary button is the no-account serial
+      check, and "How it works" replaces the old feature list. Translated,
+      Estonian still an agent first pass.
+- [ ] **3px horizontal scroll on `/` at 375px** — found 2026-11-23 and
+      pre-existing (the old landing page did it too, verified against
+      `main`). The `CornerMarks` decoration sits just outside the `mx-3`
+      frame, so a phone can scroll sideways by 3px on the first page a
+      visitor sees. Not fixed in the copy PR; the fix belongs to the framing
+      component, which several pages share.
 - [ ] **No render tests** — the redesign was verified by eye against
       fixtures, then the scaffold was deleted. A real check needs
       `@testing-library/react`, which is a new dependency.
@@ -133,8 +143,8 @@ Ordered by priority.
       action (who it contacts is a decision for you, see below).
 - [ ] **Estonian UI** — the whole public surface is translated (ET default,
       EN second, cookie + `Accept-Language`): nav, 404, `/stolen`,
-      `/b/[id]`, `/search`, auth buttons. The landing page is deliberately
-      still English — its copy sells the old product, see Q9. The Estonian
+      `/b/[id]`, `/search`, auth buttons. The landing page is translated as of
+      2026-11-23 (decision 0006), so the whole surface is covered. The Estonian
       wording throughout is an agent first pass and wants a native
       read-through.
 - [ ] **Add-bike form** — shorter, serial first with a "where to find it"
@@ -149,10 +159,11 @@ Answer them inline there. Summary of what's open:
 
 - Q1 product name + domain · Q2 public serial visibility · Q3 "I've seen
   this bike" contact · Q4 email provider · Q5 privacy/ToS · Q6 disputes ·
-  Q7 QR label format · Q8 locale in the URL · Q9 landing-page pitch ·
-  Q10 timezone for public dates.
-- **Most blocking right now:** Q1 and Q9. Nearly everything left on the
-  critical path is public copy, and Q9 is the first thing a visitor reads.
+  Q7 QR label format · Q8 locale in the URL · Q10 timezone for public dates.
+  (Q9, the landing-page pitch, was answered 2026-11-23 — decision 0006.)
+- **Most blocking right now:** Q1. The product name is placeholder text on
+  every page, including the one a visitor reads first, and Q5 (privacy/ToS)
+  is the other thing a public launch cannot skip.
 - Infrastructure is done: R2, DB schema, a working production deploy, and
   Google OAuth redirect URIs verified. Two by-hand items are left, both in
   [`questions.md`](questions.md): publish the OAuth consent screen before
@@ -161,6 +172,16 @@ Answer them inline there. Summary of what's open:
 ## Changelog
 
 Newest first. One line per merged change.
+
+- 2026-11-23 — Landing page rewritten (Q9 answered, decision 0006). The old
+  copy sold a personal bike catalogue, but the structural problem was that
+  the only action on the page was a Google sign-in: the second-hand buyer and
+  the finder, two of the four personas in the brief, have no account and were
+  offered nothing. The headline now states what the registry is, the primary
+  button is the serial check that needs no account, and registering is a
+  secondary link. The page is also translated for the first time (it was
+  hardcoded English), and the site meta description — "Keep track of our
+  bikes", the text a shared link showed — is rewritten and localized.
 
 - 2026-11-14 — Self-review of the open stack. `/b/[id]` now declares
   `dynamic = "force-dynamic"` instead of relying on an incidental cookie

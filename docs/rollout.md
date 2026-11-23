@@ -44,6 +44,10 @@ This is the product. Most of the remaining value is in these four items.
       then the registration specs. In the framed design system, dark-mode
       safe. Layout split into `src/app/b/[id]/bike-status.tsx` so it renders
       without a database. Serial number still absent, pending Q2.
+- [x] **Landing page copy** — decision 0006. Says what the registry is, and
+      the primary button is the serial check, which needs no account: the
+      page used to offer a visitor nothing but a Google sign-in, shutting out
+      the buyer and the finder.
 - [ ] **Stolen-state treatment** — strong visual plus the "I've seen this
       bike" action. Behind Q3.
 - [x] **Public stolen-bikes feed** — `/stolen`, latest 50 published thefts,
@@ -58,9 +62,11 @@ This is the product. Most of the remaining value is in these four items.
       `src/lib/dictionaries/`, locale from a cookie then `Accept-Language`,
       ET default, ET/EN switcher in the header. URL-vs-cookie is Q8.
 - [x] **Translate the public surface.** Header nav, 404, `/stolen`,
-      `/b/[id]`, `/search` and the auth buttons. The landing page is left in
-      English on purpose — its copy still sells the old product, see Q9.
-      Owner-side screens stay English at launch.
+      `/b/[id]`, `/search`, the auth buttons and — since 2026-11-23 — the
+      landing page, which was held back until its copy was settled (Q9,
+      decision 0006). Owner-side screens stay English at launch.
+      ⚠️ The Estonian throughout is an agent first pass and wants a native
+      read-through.
 
 ## Stage 4 — Legal and launch
 

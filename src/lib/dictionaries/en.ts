@@ -102,6 +102,31 @@ export const en = {
         .filter(Boolean)
         .join(" "),
   },
+  // Landing page. Decision 0006: the page leads with what the registry is,
+  // and a visitor's first action (checking a serial) needs no account —
+  // two of the four personas in the brief never sign up.
+  home: {
+    metaDescription:
+      "A public register for bicycles. Check a serial number before you buy, free and without an account.",
+    eyebrow: "Register once. Check any time.",
+    headline: "A public register for bicycles",
+    body: "Owners record a bike's serial number, specs and photos. Anyone can look that serial number up afterwards — free, no account. If a bike is stolen, its owner publishes it as stolen in minutes, and from then on every check shows it. A QR tag on the frame opens the same page with one scan.",
+    checkCta: "Check a bike's serial number",
+    registerCta: "Register your bike",
+    ctaNote: "Checking needs no account. Registering signs you in with Google.",
+    howItWorks: "How it works",
+    features: {
+      checkTitle: "Anyone can check",
+      checkBody:
+        "A buyer, a finder or a police officer looks up the serial number or scans the tag. No account, no app, nothing to install.",
+      publishTitle: "Published in minutes",
+      publishBody:
+        "Report a theft and publish it the same minute. The bike's public page turns to STOLEN and it appears in the public stolen-bike feed.",
+      tagTitle: "A tag on the frame",
+      tagBody:
+        "Print a QR tag for each bike you register. One scan opens its status page, so the check happens where the bike is.",
+    },
+  },
   auth: {
     signIn: "Sign in with Google",
     signOut: "Sign out",
