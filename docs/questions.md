@@ -167,7 +167,13 @@ translating the wrong pitch into Estonian means writing it twice.
 it stolen in minutes, and anyone can check a serial or scan a tag. I can
 draft that for your approval rather than ship it.
 
-**Answer:**
+**Answer (2026-11-23):** Answered over two drafts. Not the theft story —
+the headline states what the registry is ("A public register for
+bicycles"), and the theft case moved into the body. The serial check is the
+primary button and registering is secondary, which also fixes the
+structural problem that the page offered a non-account visitor nothing.
+Shipped and translated; see
+[decision 0006](decisions/0006-landing-page-copy.md).
 
 ---
 
@@ -275,5 +281,6 @@ The loop can't do these — they need your accounts.
 
 ## Answered
 
-Nothing yet. Answered questions move here with a pointer to their entry in
-`docs/decisions/`.
+- **Q9 — the landing page pitch** (2026-11-23). The entry above keeps the
+  full answer; the reasoning is in
+  [decision 0006](decisions/0006-landing-page-copy.md).

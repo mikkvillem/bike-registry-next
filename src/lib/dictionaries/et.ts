@@ -109,6 +109,29 @@ export const et: Dictionary = {
         .filter(Boolean)
         .join(" "),
   },
+  home: {
+    metaDescription:
+      "Avalik jalgrattaregister. Kontrolli seerianumbrit enne ostmist — tasuta ja ilma kontota.",
+    eyebrow: "Registreeri üks kord. Kontrolli igal ajal.",
+    headline: "Avalik jalgrattaregister",
+    body: "Omanikud registreerivad ratta seerianumbri, andmed ja fotod. Igaüks saab seda seerianumbrit hiljem kontrollida — tasuta ja ilma kontota. Kui ratas varastatakse, märgib omanik selle minutitega varastatuks ja edaspidi näitab iga kontroll seda. Raamile kleebitud QR-silt avab sama lehe ühe skannimisega.",
+    checkCta: "Kontrolli ratta seerianumbrit",
+    registerCta: "Registreeri oma ratas",
+    ctaNote:
+      "Kontrollimiseks pole kontot vaja. Registreerimiseks logid sisse Google'iga.",
+    howItWorks: "Kuidas see töötab",
+    features: {
+      checkTitle: "Igaüks saab kontrollida",
+      checkBody:
+        "Ostja, leidja või politseinik otsib seerianumbri järgi või skannib sildi. Kontot pole vaja, rakendust pole vaja, midagi pole vaja installida.",
+      publishTitle: "Avaldatud minutitega",
+      publishBody:
+        "Teata vargusest ja avalda see samal minutil. Ratta avalik leht muutub olekusse VARASTATUD ja ratas ilmub avalikku varastatud rataste loendisse.",
+      tagTitle: "Silt raami küljes",
+      tagBody:
+        "Prindi igale registreeritud rattale QR-silt. Üks skannimine avab ratta olekulehe, nii toimub kontroll seal, kus ratas on.",
+    },
+  },
   auth: {
     signIn: "Logi sisse Google'iga",
     signOut: "Logi välja",

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { SignOutButton } from "@/app/auth-buttons";
 import { LocaleSwitcher } from "@/app/locale-switcher";
 import { PRODUCT_NAME } from "@/lib/brand";
-import { getT } from "@/lib/locale-server";
+import { getDictionary } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/locale-server";
 import { getSession } from "@/lib/session";
 import "./globals.css";
 
@@ -18,13 +19,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  ),
-  title: { default: PRODUCT_NAME, template: `%s — ${PRODUCT_NAME}` },
-  description: "Keep track of our bikes",
-};
+// Localized because it is the description a shared link and a search result
+// show; "Keep track of our bikes" described an internal tool (decision 0006).
+export async function generateMetadata(): Promise<Metadata> {
+  const t = getDictionary(await getLocale());
+  return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    ),
+    title: { default: PRODUCT_NAME, template: `%s — ${PRODUCT_NAME}` },
+    description: t.home.metaDescription,
+  };
+}
 
 export default async function RootLayout({
   children,
